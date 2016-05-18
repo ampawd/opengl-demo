@@ -1,0 +1,20 @@
+# depslib dependency file v1.0
+1463450935 source:c:\users\aram\desktop\cpp projects\glproj2\main.cpp
+	<GL/glew.h>
+	<GL/glfw3.h>
+	<glm/glm.hpp>
+	<glm/gtc/matrix_transform.hpp>
+	<glm/gtc/type_ptr.hpp>
+	<SOIL.h>
+	<string>
+	<cstring>
+	<fstream>
+	<cassert>
+	<iostream>
+	<stdexcept>
+	<cmath>
+
+1215436408 c:\users\aram\desktop\cpp projects\glproj2\soil.h
+
+1215436408 c:\users\aram\desktop\cpp projects\glproj2\soil\soil.h
+
