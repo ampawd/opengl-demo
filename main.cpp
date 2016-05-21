@@ -12,6 +12,7 @@
 
 
 #include <string>
+#include <vector>
 #include <cstring>
 #include <fstream>
 #include <cassert>
@@ -31,6 +32,11 @@ vec2 WINDOW_SIZE(1200, 800);
 GLuint vshader, fshader, shaderProgram;
 GLfloat mixValue = 0.2f;
 
+vec3 cameraPos(0.0, 0.0, 800.0),
+     cameraTarget(0.0, 0.0, -20.0),
+     cameraUp(0.0, 1.0, 0.0);
+
+bool keys[1024];
 
 void key_callback(GLFWwindow* window, int, int, int, int);
 
@@ -104,6 +110,8 @@ std::string getShaderSource(const std::string& filepath)
     return source;
 }
 
+void do_movement();
+
 void renderScene()
 {
 }
@@ -147,35 +155,68 @@ int main(int argc, char *argv[])
     GLfloat w = 100.0f, h = 100.0f, d = 100.0f; //  world space
     GLfloat vertices1[] =
     {
-        0.0f, 0.0f, d,      0.0f, 0.0f, //  front
-        w,    0.0f, d,      1.0f, 0.0f,
-        w,    h,    d,      1.0f, 1.0f,
-        0.0f, h,    d,      0.0f, 1.0f,
+        0.0f, 0.0f, d,       //  front
+        w,    0.0f, d,
+        w,    h,    d,
+        0.0f, h,    d,
 
-        0.0f, h,    d,      0.0f, 0.0f, //  top
-        w,    h,    d,      1.0f, 0.0f,
-        w,    h,    0.0f,   1.0f, 1.0f,
-        0.0f, h,    0.0f,   0.0f, 1.0f,
+        0.0f, h,    d,       //  top
+        w,    h,    d,
+        w,    h,    0.0f,
+        0.0f, h,    0.0f,
 
-        0.0f, 0.0f, 0.0f,   0.0f, 0.0f, //  back
-        w,    0.0f, 0.0f,   1.0f, 0.0f,
-        w,    h,    0.0f,   1.0f, 1.0f,
-        0.0f, h,    0.0f,   0.0f, 1.0f,
+        0.0f, 0.0f, 0.0f,    //  back
+        w,    0.0f, 0.0f,
+        w,    h,    0.0f,
+        0.0f, h,    0.0f,
 
-        0.0f, 0.0f, d,      0.0f, 0.0f, //  bottom
-        w,    0.0f, d,      1.0f, 0.0f,
-        w,    0.0f, 0.0f,   1.0f, 1.0f,
-        0.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+        0.0f, 0.0f, d,       //  bottom
+        w,    0.0f, d,
+        w,    0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
 
-        0.0f, 0.0f, d,      0.0f, 0.0f, //  left
-        0.0f, 0.0f, 0.0f,   1.0f, 0.0f,
-        0.0f, h,    0.0f,   1.0f, 1.0f,
-        0.0f, h,    d,      0.0f, 1.0f,
+        0.0f, 0.0f, d,       //  left
+        0.0f, 0.0f, 0.0f,
+        0.0f, h,    0.0f,
+        0.0f, h,    d,
 
-        w,    0.0f, d,      0.0f, 0.0f, //  right
-        w,    0.0f, 0.0f,   1.0f, 0.0f,
-        w,    h,    0.0f,   1.0f, 1.0f,
-        w,    h,    d,      0.0f, 1.0f
+        w,    0.0f, d,       //  right
+        w,    0.0f, 0.0f,
+        w,    h,    0.0f,
+        w,    h,    d,
+    };
+
+    GLfloat texCoords[] =
+    {
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f,
+
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+        0.0f, 0.0f
     };
 
     GLuint indices[] =
@@ -199,27 +240,33 @@ int main(int argc, char *argv[])
         20, 21, 22,
         22, 23, 20
     };
+    GLsizei indicesCount = sizeof(indices)/sizeof(GLuint);
 
-    GLuint vao1, vbo1, ebo1,
+    GLuint vao1, vbo1, vbo2, ebo1,
     positionLoc = glGetAttribLocation(shaderProgram, "position"),
     texCoordLoc = glGetAttribLocation(shaderProgram, "texCoord"),
     mvpLoc = glGetUniformLocation(shaderProgram, "mvp");
 
     glGenVertexArrays(1, &vao1);
     glBindVertexArray(vao1);
-        glGenBuffers(1, &vbo1);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo1);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
-        glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), (GLvoid*)0);
-        glEnableVertexAttribArray(positionLoc);
-        glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)));
-        glEnableVertexAttribArray(texCoordLoc);
-
         glGenBuffers(1, &ebo1);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        glGenBuffers(1, &vbo1);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
+        glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat), (GLvoid*)0);
+
+        glGenBuffers(1, &vbo2);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo2);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
+        glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_FALSE, 2*sizeof(GLfloat), (GLvoid*)0);
+
+        glEnableVertexAttribArray(positionLoc);
+        glEnableVertexAttribArray(texCoordLoc);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);   //  unbind
     glBindVertexArray(0);   //  unbind
 
     //  brick texture
@@ -255,21 +302,20 @@ int main(int argc, char *argv[])
 
 
     //  rendering
+    std::vector<vec3> positions;
+    positions.push_back(vec3(-2*w, 0.0f, 0.0f));
+    positions.push_back(vec3(0.0f, h, -1.5*d));
+    positions.push_back(vec3(w, -h, 0.0f));
+    positions.push_back(vec3(2*w + 50, 0.0f, 0.0f));
+    positions.push_back(vec3(-2*w + 150, -1.5*h, -10.0f));
 
-    vec3 positions[4] =
-    {
-        vec3(-2*w, 0.0f, 0.0f),
-        vec3(0.0f, h, -1.3*d),
-        vec3(w, -h, 0.0f),
-        vec3(2*w + 100, 0.0f, 0.0f),
-    };
-    GLsizei indicesCount = sizeof(indices)/sizeof(GLuint);
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate;
-    projection = perspective(45.0f, WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 2000.0f);
-    view = lookAt(vec3(0.0f, 0.0f, 750.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-    pv = projection * view;
+    projection = perspective(45.0f, WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
+    view = lookAt(vec3(0.0f, 0.0f, 850.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+    GLfloat camX = 0.0f, camZ = 800.0f, radius = 800.0f;
+
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -284,22 +330,27 @@ int main(int argc, char *argv[])
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, faceTexture);
             glUniform1i(glGetUniformLocation(shaderProgram, "faceTexture"), 1);
+
             glUniform1f(glGetUniformLocation(shaderProgram, "mixValue"), mixValue);
 
             Tback = translate(mat4(1.0f), vec3(w/2, h/2, d/2));
-            R = rotate(mat4(1.0f), (GLfloat)glfwGetTime(), vec3(1.0, 0.0, 0.0));
+            //R = rotate(mat4(1.0f), (GLfloat)glfwGetTime(), vec3(0.0f, -1.0f, 0.0f) );
             T = translate(mat4(1.0f), -1.0f * vec3(w/2, h/2, d/2));
 
-            for (int i = 0; i < 4; i++)
+            do_movement();
+            view = lookAt(cameraPos, cameraTarget + cameraPos, cameraUp);
+
+            pv = projection * view;
+            for (int i = 0; i < positions.size(); i++)
             {
-                freeTranslate = translate(mat4(1.0f), -1.0f*positions[i]);
+                freeTranslate = translate(mat4(1.0f), positions[i]);
                 model = freeTranslate * Tback * R * T;
                 mvp = pv * model;
                 glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp));
                 glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
             }
-        glBindVertexArray(0);
 
+        glBindVertexArray(0);
         glfwSwapBuffers(window);
     }
 
@@ -332,5 +383,33 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         {
             mixValue = 1.0;
         }
+    }
+    if (action == GLFW_PRESS)
+    {
+        keys[key] = true;
+    }
+    if (action == GLFW_RELEASE)
+    {
+        keys[key] = false;
+    }
+}
+
+void do_movement()
+{
+    if (keys[GLFW_KEY_W])  //  forward
+    {
+        cameraPos += cameraTarget;
+    }
+    if (keys[GLFW_KEY_S])  //  backward
+    {
+        cameraPos -= cameraTarget;
+    }
+    if (keys[GLFW_KEY_A])  //  left
+    {
+        cameraPos -= cross(cameraTarget, cameraUp);
+    }
+    if (keys[GLFW_KEY_D])  //  right
+    {
+        cameraPos += cross(cameraTarget, cameraUp);
     }
 }
