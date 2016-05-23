@@ -23,28 +23,51 @@
 
 #define EXIT_SUCCESS 0
 
-using namespace std;
 
-using namespace glm;
-
-
-vec2 WINDOW_SIZE(1200, 800);
+glm::vec2 WINDOW_SIZE(1200, 800);
 GLuint vshader, fshader, shaderProgram;
-GLfloat mixValue = 0.2f;
+GLfloat mixValue = 0.0f,
+        fov = 45.0f;
 
-vec3 cameraPos(0.0, 0.0, 800.0),
+glm::vec3 cameraPos(0.0, 0.0, 800.0),
      cameraTarget(0.0, 0.0, -20.0),
      cameraUp(0.0, 1.0, 0.0);
 
+GLfloat yaw   = -90.0f;
+GLfloat pitch =   0.0f;
+GLfloat lastX =  1200.0 / 2.0;
+GLfloat lastY =  800.0 / 2.0;
+bool first = true;
 bool keys[1024];
 
-void key_callback(GLFWwindow* window, int, int, int, int);
 
 std::string getShaderSource(const std::string&);
-
-void renderScene();
-
 void setUpShaders();
+void key_callback(GLFWwindow* window, int, int, int, int);
+void do_movement(const GLfloat&);
+void mouse_callback(GLFWwindow* window, double, double);
+void scroll_callback(GLFWwindow* window, double, double);
+
+
+std::string getShaderSource(const std::string& filepath)
+{
+    std::ifstream ifs(filepath);
+    std::string line, source = "";
+    if (!ifs.is_open())
+    {
+        std::cout << "Could not read the shader file" << '\n';
+        return source;
+    }
+
+    while(!ifs.eof())
+    {
+        std::getline(ifs, line);
+        source += line; source += '\n';
+    }
+
+    ifs.close();
+    return source;
+}
 
 void setUpShaders()
 {
@@ -90,30 +113,108 @@ void setUpShaders()
     glUseProgram(shaderProgram);
 }
 
-std::string getShaderSource(const std::string& filepath)
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-    std::ifstream ifs(filepath);
-    std::string line, source = "";
-    if (!ifs.is_open())
+    //std::cout << key << std::endl;
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
-        std::cout << "Could not read the shader file" << '\n';
-        return source;
+        glfwSetWindowShouldClose(window, GL_TRUE);
     }
-
-    while(!ifs.eof())
+    if (key == GLFW_KEY_LEFT)
     {
-        std::getline(ifs, line);
-        source += line; source += '\n';
+        mixValue -= 0.05;
+        if (mixValue < 0.0)
+        {
+            mixValue = 0.0;
+        }
     }
-
-    ifs.close();
-    return source;
+    if (key == GLFW_KEY_RIGHT)
+    {
+        mixValue += 0.05;
+        if (mixValue > 1.0)
+        {
+            mixValue = 1.0;
+        }
+    }
+    if (action == GLFW_PRESS)
+    {
+        keys[key] = true;
+    }
+    if (action == GLFW_RELEASE)
+    {
+        keys[key] = false;
+    }
 }
 
-void do_movement();
-
-void renderScene()
+void do_movement(const GLfloat& dt)
 {
+    GLfloat cameraSpeed = 20.0f * dt;
+    if (keys[GLFW_KEY_W])  //  forward
+    {
+        cameraPos += cameraTarget * cameraSpeed;
+    }
+    if (keys[GLFW_KEY_S])  //  backward
+    {
+        cameraPos -= cameraTarget * cameraSpeed;
+    }
+    if (keys[GLFW_KEY_A])  //  left
+    {
+        cameraPos -= (glm::cross(cameraTarget, cameraUp)) * cameraSpeed;
+    }
+    if (keys[GLFW_KEY_D])  //  right
+    {
+        cameraPos += (glm::cross(cameraTarget, cameraUp)) * cameraSpeed;
+    }
+    cameraPos.y = 0.0f; //  keep staying on xz plane
+}
+
+void mouse_callback(GLFWwindow* window, double x, double y)
+{
+    if (first)
+    {
+        lastX = x;
+        lastY = y;
+        first = false;
+    }
+    GLfloat sensivity = 0.06f;
+    GLfloat dx = x - lastX;
+    GLfloat dy = lastY - y;
+    lastX = x;
+    lastY = y;
+
+    dx *= sensivity;
+    dy *= sensivity;
+
+    yaw += dx;
+    pitch += dy;
+
+    if (pitch > 89.0f)
+    {
+        pitch = 89.0f;
+    }
+
+    if (pitch < -89.0f)
+    {
+        pitch = -89.0f;
+    }
+
+    glm::vec3 target;
+    target.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    target.y = sin(glm::radians(pitch));
+    target.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+    cameraTarget = 20.0f * glm::normalize(target);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    if (fov >= 1.0f && fov <= 45.0f)
+        fov -= yoffset/20.0f;
+    if (fov <= 1.0f)
+        fov = 1.0f;
+    if (fov >= 45.0f)
+        fov = 45.0f;
+
+    //std::cout << fov << '\n';
 }
 
 int main(int argc, char *argv[])
@@ -136,6 +237,11 @@ int main(int argc, char *argv[])
     }
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetWindowPos(window, 10, 50);
+
     int viewPortW = (int)WINDOW_SIZE.x, viewPortH = (int)WINDOW_SIZE.y;
     glfwGetFramebufferSize(window, &viewPortW, &viewPortH);
     glViewport(0, 0, viewPortW, viewPortH);
@@ -147,9 +253,7 @@ int main(int argc, char *argv[])
     {
         throw std::runtime_error("glewInit failed");
     }
-
     setUpShaders();
-
 
     //  vertex position, indices
     GLfloat w = 100.0f, h = 100.0f, d = 100.0f; //  world space
@@ -300,27 +404,31 @@ int main(int argc, char *argv[])
     SOIL_free_image_data(faceImage);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    std::vector<glm::vec3> positions;
+    positions.push_back(glm::vec3(-2*w, 0.0f, 0.0f));
+    positions.push_back(glm::vec3(0.0f, h, -1.5*d));
+    positions.push_back(glm::vec3(w, -h, 0.0f));
+    positions.push_back(glm::vec3(2*w + 50, 0.0f, 0.0f));
+    positions.push_back(glm::vec3(-2*w + 150, -1.5*h, -10.0f));
+
+    glm::mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate;
+    projection = glm::perspective(fov, WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
+    view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+
+    GLfloat currentFrame = 0.0f,
+            lastFrame = 0.0f,
+            dt = 0.0f;
 
     //  rendering
-    std::vector<vec3> positions;
-    positions.push_back(vec3(-2*w, 0.0f, 0.0f));
-    positions.push_back(vec3(0.0f, h, -1.5*d));
-    positions.push_back(vec3(w, -h, 0.0f));
-    positions.push_back(vec3(2*w + 50, 0.0f, 0.0f));
-    positions.push_back(vec3(-2*w + 150, -1.5*h, -10.0f));
-
-
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate;
-    projection = perspective(45.0f, WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
-    view = lookAt(vec3(0.0f, 0.0f, 850.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-    GLfloat camX = 0.0f, camZ = 800.0f, radius = 800.0f;
-
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
         glClearColor(0.5f, 0.54f, 0.6f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        currentFrame = glfwGetTime();
+        dt = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
         glBindVertexArray(vao1);
             glActiveTexture(GL_TEXTURE0);
@@ -333,17 +441,18 @@ int main(int argc, char *argv[])
 
             glUniform1f(glGetUniformLocation(shaderProgram, "mixValue"), mixValue);
 
-            Tback = translate(mat4(1.0f), vec3(w/2, h/2, d/2));
-            //R = rotate(mat4(1.0f), (GLfloat)glfwGetTime(), vec3(0.0f, -1.0f, 0.0f) );
-            T = translate(mat4(1.0f), -1.0f * vec3(w/2, h/2, d/2));
+            Tback = glm::translate(glm::mat4(1.0f), glm::vec3(w/2, h/2, d/2));
+            R = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
+            T = glm::translate(glm::mat4(1.0f), -1.0f * glm::vec3(w/2, h/2, d/2));
 
-            do_movement();
-            view = lookAt(cameraPos, cameraTarget + cameraPos, cameraUp);
+            do_movement(dt);
+            projection = glm::perspective(fov, WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
+            view = glm::lookAt(cameraPos, cameraPos + cameraTarget, cameraUp);
 
             pv = projection * view;
             for (int i = 0; i < positions.size(); i++)
             {
-                freeTranslate = translate(mat4(1.0f), positions[i]);
+                freeTranslate = glm::translate(glm::mat4(1.0f), positions[i]);
                 model = freeTranslate * Tback * R * T;
                 mvp = pv * model;
                 glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp));
@@ -356,60 +465,8 @@ int main(int argc, char *argv[])
 
     glDeleteVertexArrays(1, &vao1);
     glDeleteBuffers(1, &vbo1);
+    glDeleteBuffers(1, &vbo2);
     glDeleteBuffers(1, &ebo1);
     glfwTerminate();
     return EXIT_SUCCESS;
-}
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
-{
-    //std::cout << key << std::endl;
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
-    if (key == GLFW_KEY_LEFT)
-    {
-        mixValue -= 0.05;
-        if (mixValue < 0.0)
-        {
-            mixValue = 0.0;
-        }
-    }
-    if (key == GLFW_KEY_RIGHT)
-    {
-        mixValue += 0.05;
-        if (mixValue > 1.0)
-        {
-            mixValue = 1.0;
-        }
-    }
-    if (action == GLFW_PRESS)
-    {
-        keys[key] = true;
-    }
-    if (action == GLFW_RELEASE)
-    {
-        keys[key] = false;
-    }
-}
-
-void do_movement()
-{
-    if (keys[GLFW_KEY_W])  //  forward
-    {
-        cameraPos += cameraTarget;
-    }
-    if (keys[GLFW_KEY_S])  //  backward
-    {
-        cameraPos -= cameraTarget;
-    }
-    if (keys[GLFW_KEY_A])  //  left
-    {
-        cameraPos -= cross(cameraTarget, cameraUp);
-    }
-    if (keys[GLFW_KEY_D])  //  right
-    {
-        cameraPos += cross(cameraTarget, cameraUp);
-    }
 }
