@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1464005956 source:c:\users\aram\desktop\cpp projects\glproj2\main.cpp
+1464096063 source:c:\users\aram\desktop\cpp projects\glproj2\main.cpp
 	<GL/glew.h>
 	<GL/glfw3.h>
 	<glm/glm.hpp>
@@ -14,8 +14,29 @@
 	<iostream>
 	<stdexcept>
 	<cmath>
+	"shader_manager.h"
 
 1215436408 c:\users\aram\desktop\cpp projects\glproj2\soil.h
 
 1215436408 c:\users\aram\desktop\cpp projects\glproj2\soil\soil.h
+
+1464097890 c:\users\aram\desktop\cpp projects\glproj2\shader_manager.h
+	<GL/glew.h>
+	"shader.h"
+
+1464097763 c:\users\aram\desktop\cpp projects\glproj2\shader.h
+	<iostream>
+	<string>
+	<cstring>
+	<fstream>
+	<cassert>
+	<stdexcept>
+	"GL/glew.h"
+
+1464097817 source:c:\users\aram\desktop\cpp projects\glproj2\shader.cpp
+	"shader.h"
+
+1464097987 source:c:\users\aram\desktop\cpp projects\glproj2\shader_manager.cpp
+	"shader_manager.h"
+	"shader.h"
 

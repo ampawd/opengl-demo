@@ -10,7 +10,6 @@
 #include <SOIL.h>
 
 
-
 #include <string>
 #include <vector>
 #include <cstring>
@@ -20,12 +19,13 @@
 #include <stdexcept>
 #include <cmath>
 
+#include "shader_manager.h"
 
 #define EXIT_SUCCESS 0
 
 
 glm::vec2 WINDOW_SIZE(1200, 800);
-GLuint vshader, fshader, shaderProgram;
+GLuint shaderProgram;
 GLfloat mixValue = 0.0f,
         fov = 45.0f;
 
@@ -71,10 +71,12 @@ std::string getShaderSource(const std::string& filepath)
 
 void setUpShaders()
 {
+    GLuint vshader, fshader;
     GLint success;
     GLchar infoLog[512];
     std::string vshaderStr, fshaderStr;
-    vshaderStr = getShaderSource("vshader");
+
+    vshaderStr = getShaderSource("shaders/vshader");
     const char* vsource = vshaderStr.c_str();
     vshader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vshader, 1, &vsource, NULL);
@@ -85,7 +87,8 @@ void setUpShaders()
         glGetShaderInfoLog(vshader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
-    fshaderStr = getShaderSource("fshader");
+
+    fshaderStr = getShaderSource("shaders/fshader");
     fshader = glCreateShader(GL_FRAGMENT_SHADER);
     const char* fsource = fshaderStr.c_str();
     glShaderSource(fshader, 1, &fsource, NULL);
@@ -96,6 +99,7 @@ void setUpShaders()
         glGetShaderInfoLog(fshader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
+
     // Link shaders
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vshader);
@@ -213,8 +217,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         fov = 1.0f;
     if (fov >= 45.0f)
         fov = 45.0f;
-
-    //std::cout << fov << '\n';
 }
 
 int main(int argc, char *argv[])
@@ -233,7 +235,7 @@ int main(int argc, char *argv[])
     GLFWwindow* window = glfwCreateWindow((int)WINDOW_SIZE.x, (int)WINDOW_SIZE.y, "Window 1", nullptr, nullptr);
     if (!window)
     {
-        throw std::runtime_error("glfwOpenWindow failed. Can your hardware handle OpenGL 4.2?");
+        throw std::runtime_error("glfwOpenWindow failed. Can your hardware handle OpenGL 4.5?");
     }
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
@@ -253,6 +255,8 @@ int main(int argc, char *argv[])
     {
         throw std::runtime_error("glewInit failed");
     }
+
+
     setUpShaders();
 
     //  vertex position, indices
@@ -369,7 +373,6 @@ int main(int argc, char *argv[])
 
         glEnableVertexAttribArray(positionLoc);
         glEnableVertexAttribArray(texCoordLoc);
-
         glBindBuffer(GL_ARRAY_BUFFER, 0);   //  unbind
     glBindVertexArray(0);   //  unbind
 
@@ -382,7 +385,7 @@ int main(int argc, char *argv[])
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   // Set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     int brickWidth, brickHeight;
-    unsigned char* brickImage = SOIL_load_image("brick.jpg", &brickWidth, &brickHeight, 0, SOIL_LOAD_RGB);
+    unsigned char* brickImage = SOIL_load_image("images/brick.jpg", &brickWidth, &brickHeight, 0, SOIL_LOAD_RGB);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, brickWidth, brickHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, brickImage);
     glGenerateMipmap(GL_TEXTURE_2D);
     SOIL_free_image_data(brickImage);
@@ -395,10 +398,10 @@ int main(int argc, char *argv[])
     glBindTexture(GL_TEXTURE_2D, faceTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	    //  Set texture wrapping to GL_REPEAT (usually basic wrapping method)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   // Set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     int faceWidth, faceHeight;
-    unsigned char* faceImage = SOIL_load_image("t3.jpg", &faceWidth, &faceHeight, 0, SOIL_LOAD_RGB);
+    unsigned char* faceImage = SOIL_load_image("images/t3.jpg", &faceWidth, &faceHeight, 0, SOIL_LOAD_RGB);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, faceWidth, faceHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, faceImage);
     glGenerateMipmap(GL_TEXTURE_2D);
     SOIL_free_image_data(faceImage);
