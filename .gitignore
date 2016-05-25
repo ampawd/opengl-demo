@@ -1,6 +1,6 @@
 bin
-obj
 doxygen
-glproj2
-glproj2
-glproj2
+obj
+glproj2.cbp
+glproj2.depend
+glproj2.layout
