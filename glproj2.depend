@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1464096063 source:c:\users\aram\desktop\cpp projects\glproj2\main.cpp
+1464183269 source:c:\users\aram\desktop\cpp projects\glproj2\main.cpp
 	<GL/glew.h>
 	<GL/glfw3.h>
 	<glm/glm.hpp>
@@ -13,30 +13,35 @@
 	<cassert>
 	<iostream>
 	<stdexcept>
-	<cmath>
 	"shader_manager.h"
+	"camera.h"
 
 1215436408 c:\users\aram\desktop\cpp projects\glproj2\soil.h
 
 1215436408 c:\users\aram\desktop\cpp projects\glproj2\soil\soil.h
 
-1464097890 c:\users\aram\desktop\cpp projects\glproj2\shader_manager.h
-	<GL/glew.h>
+1464167894 c:\users\aram\desktop\cpp projects\glproj2\shader_manager.h
 	"shader.h"
 
-1464097763 c:\users\aram\desktop\cpp projects\glproj2\shader.h
+1464184120 c:\users\aram\desktop\cpp projects\glproj2\shader.h
 	<iostream>
 	<string>
 	<cstring>
 	<fstream>
-	<cassert>
-	<stdexcept>
-	"GL/glew.h"
+	<GL/glew.h>
 
-1464097817 source:c:\users\aram\desktop\cpp projects\glproj2\shader.cpp
+1464182508 source:c:\users\aram\desktop\cpp projects\glproj2\shader.cpp
 	"shader.h"
 
-1464097987 source:c:\users\aram\desktop\cpp projects\glproj2\shader_manager.cpp
+1464182505 source:c:\users\aram\desktop\cpp projects\glproj2\shader_manager.cpp
 	"shader_manager.h"
-	"shader.h"
+
+1464184098 source:c:\users\aram\desktop\cpp projects\glproj2\camera.cpp
+	"camera.h"
+
+1464183702 c:\users\aram\desktop\cpp projects\glproj2\camera.h
+	<GL/glew.h>
+	<glm/glm.hpp>
+	<glm/gtc/matrix_transform.hpp>
+	<glm/gtc/type_ptr.hpp>
 

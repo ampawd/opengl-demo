@@ -1,11 +1,11 @@
 #include "shader.h"
 
-Shader::Shader(ShaderTypes _type, const std::string& filepath): type(_type)
+Shader::Shader(GLint _shaderType, const std::string& filepath): type(_shaderType)
 {
     if (filepath.size() != 0)
     {
         std::ifstream ifs(filepath);
-        std::string line, source = "";
+        std::string line;
         if (!ifs.is_open())
         {
             std::cerr << "Could not read the shader file" << '\n';
@@ -19,21 +19,20 @@ Shader::Shader(ShaderTypes _type, const std::string& filepath): type(_type)
         ifs.close();
     }
 
-    ID = glCreateShader(_type);
+    ID = glCreateShader(_shaderType);
 }
 
 const std::string Shader::getSource() const
 {
-    return this->source;
+    return source;
 }
 
-
-ShaderTypes Shader::getType() const
+GLint Shader::getType() const
 {
-    return this->type;
+    return type;
 }
 
 GLuint Shader::getID() const
 {
-    return this->ID;
+    return ID;
 }

@@ -1,34 +1,29 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+#define GLEW_STATIC
 
 #include <iostream>
 #include <string>
 #include <cstring>
 #include <fstream>
-#include <cassert>
-#include <stdexcept>
 
-#include "GL/glew.h"
-
-enum ShaderTypes {
-    VERTEX_SHADER = GL_VERTEX_SHADER,
-    FRAGMENT_SHADER = GL_FRAGMENT_SHADER,
-    GEOMETRY_SHADER = GL_GEOMETRY_SHADER
-};
+#include <GL/glew.h>
 
 class Shader
 {
     public:
-        explicit Shader(ShaderTypes, const std::string&);
+        explicit Shader(GLint, const std::string&);
         const std::string getSource() const;
-        ShaderTypes getType() const;
+        GLint getType() const;
         GLuint getID() const;
 
     private:
-        const std::string source;
-        ShaderTypes type;
+        std::string source;
+        GLint type;
         GLuint ID;
+
+    protected:
 };
 
 #endif // SHADER_H

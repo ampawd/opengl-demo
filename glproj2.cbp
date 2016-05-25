@@ -16,7 +16,6 @@
 				</Compiler>
 				<Linker>
 					<Add library="C:\Program Files\CodeBlocks\MinGW\lib\glew32s.lib" />
-					<Add library="C:\Program Files\CodeBlocks\MinGW\lib\glew32.lib" />
 					<Add library="C:\Program Files\CodeBlocks\MinGW\lib\libopengl32.a" />
 					<Add library="C:\Program Files\CodeBlocks\MinGW\lib\glfw3dll.a" />
 					<Add library="C:\Program Files\CodeBlocks\MinGW\lib\libglfw3.a" />
@@ -39,9 +38,14 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="fshader" />
 		<Unit filename="main.cpp" />
-		<Unit filename="vshader" />
+		<Unit filename="shader.cpp" />
+		<Unit filename="shader.h" />
+		<Unit filename="shader_manager.cpp" />
+		<Unit filename="shader_manager.h" />
+		<Unit filename="shaders/fshader" />
+		<Unit filename="shaders/gshader" />
+		<Unit filename="shaders/vshader" />
 		<Extensions>
 			<code_completion />
 			<envvars />

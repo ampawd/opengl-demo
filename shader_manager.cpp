@@ -1,13 +1,12 @@
 #include "shader_manager.h"
-#include "shader.h"
 
-ShaderManager::ShaderManager(): usingProgram(0), programBuilt(false)
+ShaderManager::ShaderManager() : currentShaderProgram(0)
 {
 }
 
-bool ShaderManager::buildProgram(const Shader& vshaderInstance, const Shader& fhaderInstance, const Shader& ghaderInstance)
+GLuint ShaderManager::buildProgram(const Shader& vshaderInstance, const Shader& fhaderInstance, const Shader& ghaderInstance)
 {
-    if (compileShader(vshaderInstance))
+    if (!compileShader(vshaderInstance))
     {
         showShaderInfoLog(vshaderInstance);
     }
@@ -25,37 +24,38 @@ bool ShaderManager::buildProgram(const Shader& vshaderInstance, const Shader& fh
     glAttachShader(program, fhaderInstance.getID());
 
     glLinkProgram(program);
-    glGetProgramiv(program, GL_LINK_STATUS, &programBuilt);
-    if (!programBuilt)
+    GLint linked;
+    glGetProgramiv(program, GL_LINK_STATUS, &linked);
+    if (!linked)
     {
         showProgramInfoLog(program);
     }
+
     glDeleteShader(vshaderInstance.getID());
     glDeleteShader(fhaderInstance.getID());
 
-    return programBuilt;
+    return program;
 }
 
 void ShaderManager::use(GLuint program)
 {
-    if (programBuilt)
-    {
-        glUseProgram(getUsingProgram());
-    }
+    glUseProgram(program);
+    currentShaderProgram = program;
 }
 
 GLuint ShaderManager::getUsingProgram() const
 {
-    return usingProgram;
+    return currentShaderProgram;
 }
 
 bool ShaderManager::compileShader(const Shader& shaderInstance)
 {
+    GLint compiled;
     const char* source = shaderInstance.getSource().c_str();
     glShaderSource(shaderInstance.getID(), 1, &source, NULL);
     glCompileShader(shaderInstance.getID());
-    glGetShaderiv(shaderInstance.getID(), GL_COMPILE_STATUS, &programBuilt);
-    return programBuilt;
+    glGetShaderiv(shaderInstance.getID(), GL_COMPILE_STATUS, &compiled);
+    return compiled;
 }
 
 void ShaderManager::showShaderInfoLog(const Shader& shaderInstance)
