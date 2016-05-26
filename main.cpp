@@ -116,47 +116,50 @@ int main(int argc, char *argv[])
         throw std::runtime_error("glewInit failed");
     }
     ShaderManager shaderManager;
+    GLuint shaderProgramScene, shaderProgramLightSource;
     Shader vshader(GL_VERTEX_SHADER, "shaders/vshader");
-    Shader fshader(GL_FRAGMENT_SHADER, "shaders/fshader");
+    Shader vshader_lightsource(GL_VERTEX_SHADER, "shaders/vshader_lightsource");
+    Shader fshader_lightings(GL_FRAGMENT_SHADER, "shaders/fshader_lightings");
+    Shader fshader_lightsource(GL_FRAGMENT_SHADER, "shaders/fshader_lightsource");
     Shader gshader(GL_GEOMETRY_SHADER, "shaders/gshader");
-    GLuint shaderProgram = shaderManager.buildProgram(vshader, fshader, gshader);
-    shaderManager.use(shaderProgram);
 
-
+    shaderProgramScene = shaderManager.buildProgram(vshader, fshader_lightings, gshader);
+    shaderProgramLightSource = shaderManager.buildProgram(vshader, fshader_lightsource, gshader);
 
     //  vertex position, indices
     GLfloat w = 100.0f, h = 100.0f, d = 100.0f; //  world space
     GLfloat vertices1[] =
     {
-        0.0f, 0.0f, d,       //  front
-        w,    0.0f, d,
-        w,    h,    d,
-        0.0f, h,    d,
+        //  positions      //   normals
+        0.0f, 0.0f, d,      0.0f, 0.0f, 1.0f,    //  front
+        w,    0.0f, d,      0.0f, 0.0f, 1.0f,
+        w,    h,    d,      0.0f, 0.0f, 1.0f,
+        0.0f, h,    d,      0.0f, 0.0f, 1.0f,
 
-        0.0f, h,    d,       //  top
-        w,    h,    d,
-        w,    h,    0.0f,
-        0.0f, h,    0.0f,
+        0.0f, h,    d,      0.0f, 1.0f, 0.0f,    //  top
+        w,    h,    d,      0.0f, 1.0f, 0.0f,
+        w,    h,    0.0f,   0.0f, 1.0f, 0.0f,
+        0.0f, h,    0.0f,   0.0f, 1.0f, 0.0f,
 
-        0.0f, 0.0f, 0.0f,    //  back
-        w,    0.0f, 0.0f,
-        w,    h,    0.0f,
-        0.0f, h,    0.0f,
+        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,   //  back
+        w,    0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+        w,    h,    0.0f,  0.0f, 0.0f, -1.0f,
+        0.0f, h,    0.0f,  0.0f, 0.0f, -1.0f,
 
-        0.0f, 0.0f, d,       //  bottom
-        w,    0.0f, d,
-        w,    0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, d,     0.0f, -1.0f, 0.0f,   //  bottom
+        w,    0.0f, d,     0.0f, -1.0f, 0.0f,
+        w,    0.0f, 0.0f,  0.0f, -1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,
 
-        0.0f, 0.0f, d,       //  left
-        0.0f, 0.0f, 0.0f,
-        0.0f, h,    0.0f,
-        0.0f, h,    d,
+        0.0f, 0.0f, d,     -1.0f, 0.0f, 0.0f,   //  left
+        0.0f, 0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,
+        0.0f, h,    0.0f,  -1.0f, 0.0f, 0.0f,
+        0.0f, h,    d,     -1.0f, 0.0f, 0.0f,
 
-        w,    0.0f, d,       //  right
-        w,    0.0f, 0.0f,
-        w,    h,    0.0f,
-        w,    h,    d,
+        w,    0.0f, d,      1.0f, 0.0f, 0.0f,    //  right
+        w,    0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
+        w,    h,    0.0f,   1.0f, 0.0f, 0.0f,
+        w,    h,    d,      1.0f, 0.0f, 0.0f
     };
 
     GLfloat texCoords[] =
@@ -214,65 +217,96 @@ int main(int argc, char *argv[])
         22, 23, 20
     };
     GLsizei indicesCount = sizeof(indices)/sizeof(GLuint);
+    glm::vec3 lightPosition(7*w, 200.0f, 300.0f);
 
-    GLuint vao1, vbo1, vbo2, ebo1,
-    positionLoc = glGetAttribLocation(shaderProgram, "position"),
-    texCoordLoc = glGetAttribLocation(shaderProgram, "texCoord"),
-    mvpLoc = glGetUniformLocation(shaderProgram, "mvp");
 
-    glGenVertexArrays(1, &vao1);
-    glBindVertexArray(vao1);
+    shaderManager.use(shaderProgramScene);
+    GLuint objectVao, vbo1, vbo2, ebo1,
+
+    positionLocScene = glGetAttribLocation(shaderProgramScene, "position"),
+    texCoordLocScene = glGetAttribLocation(shaderProgramScene, "texCoord"),
+    normalLocScene = glGetAttribLocation(shaderProgramScene, "normal"),
+    mvpLocScene = glGetUniformLocation(shaderProgramScene, "mvp"),
+    modelLocScene = glGetUniformLocation(shaderProgramScene, "model"),
+    lightColorLoc = glGetUniformLocation(shaderProgramScene, "lightColor"),
+    objectColorLoc = glGetUniformLocation(shaderProgramScene, "objectColor"),
+    lightPositionLoc = glGetUniformLocation(shaderProgramScene, "lightPosition");
+
+    glUniform3f(objectColorLoc, 1.0f, 0.6f, 0.5f);
+    glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
+    glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
+
+
+    glGenVertexArrays(1, &objectVao);
+    glBindVertexArray(objectVao);
         glGenBuffers(1, &ebo1);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-        glGenBuffers(1, &vbo1);
 
+        glGenBuffers(1, &vbo1);
         glBindBuffer(GL_ARRAY_BUFFER, vbo1);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
-        glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat), (GLvoid*)0);
+        glVertexAttribPointer(positionLocScene, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (GLvoid*)0);
+        glEnableVertexAttribArray(positionLocScene);
 
-        glGenBuffers(1, &vbo2);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
-        glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_FALSE, 2*sizeof(GLfloat), (GLvoid*)0);
+//        glGenBuffers(1, &vbo2);
+//        glBindBuffer(GL_ARRAY_BUFFER, vbo2);
+//        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
+//        glVertexAttribPointer(texCoordLocScene, 2, GL_FLOAT, GL_FALSE, 2*sizeof(GLfloat), (GLvoid*)0);
 
-        glEnableVertexAttribArray(positionLoc);
-        glEnableVertexAttribArray(texCoordLoc);
+        glVertexAttribPointer(normalLocScene, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(normalLocScene);
         glBindBuffer(GL_ARRAY_BUFFER, 0);   //  unbind
     glBindVertexArray(0);   //  unbind
 
-    //  brick texture
-    GLuint brickTexture;
-    glGenTextures(1, &brickTexture);
-    glBindTexture(GL_TEXTURE_2D, brickTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);       //  Set texture wrapping to GL_REPEAT (usually basic wrapping method)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    int brickWidth, brickHeight;
-    unsigned char* brickImage = SOIL_load_image("images/container2.png", &brickWidth, &brickHeight, 0, SOIL_LOAD_RGB);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, brickWidth, brickHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, brickImage);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    SOIL_free_image_data(brickImage);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
-    //  face texture
-    GLuint faceTexture;
-    glGenTextures(1, &faceTexture);
-    glBindTexture(GL_TEXTURE_2D, faceTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	    //  Set texture wrapping to GL_REPEAT (usually basic wrapping method)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    int faceWidth, faceHeight;
-    unsigned char* faceImage = SOIL_load_image("images/t3.jpg", &faceWidth, &faceHeight, 0, SOIL_LOAD_RGB);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, faceWidth, faceHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, faceImage);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    SOIL_free_image_data(faceImage);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    shaderManager.use(shaderProgramLightSource);
+    GLuint positionLocLight = glGetAttribLocation(shaderProgramLightSource, "position"),
+           mvpLocLight = glGetUniformLocation(shaderProgramLightSource, "mvp");
+    //  light source is cube
+    GLuint lightVao;
+    glGenVertexArrays(1, &lightVao);
+    glBindVertexArray(lightVao);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+        glVertexAttribPointer(positionLocLight, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (GLvoid*)0);
+        glEnableVertexAttribArray(positionLocLight);
+    glBindVertexArray(0);
+
+
+    //  brick texture
+//    GLuint brickTexture;
+//    glGenTextures(1, &brickTexture);
+//    glBindTexture(GL_TEXTURE_2D, brickTexture);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);       //  Set texture wrapping to GL_REPEAT (usually basic wrapping method)
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    int brickWidth, brickHeight;
+//    unsigned char* brickImage = SOIL_load_image("images/container2.png", &brickWidth, &brickHeight, 0, SOIL_LOAD_RGB);
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, brickWidth, brickHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, brickImage);
+//    glGenerateMipmap(GL_TEXTURE_2D);
+//    SOIL_free_image_data(brickImage);
+//    glBindTexture(GL_TEXTURE_2D, 0);
+//
+//    //  face texture
+//    GLuint faceTexture;
+//    glGenTextures(1, &faceTexture);
+//    glBindTexture(GL_TEXTURE_2D, faceTexture);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	    //  Set texture wrapping to GL_REPEAT (usually basic wrapping method)
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    int faceWidth, faceHeight;
+//    unsigned char* faceImage = SOIL_load_image("images/t3.jpg", &faceWidth, &faceHeight, 0, SOIL_LOAD_RGB);
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, faceWidth, faceHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, faceImage);
+//    glGenerateMipmap(GL_TEXTURE_2D);
+//    SOIL_free_image_data(faceImage);
+//    glBindTexture(GL_TEXTURE_2D, 0);
 
 
     std::vector<glm::vec3> positions;
+    //positions.push_back(glm::vec3(-100.0f, -50.0f, 0.0f));
     positions.push_back(glm::vec3(-2*w, 0.0f, 0.0f));
     positions.push_back(glm::vec3(0.0f, h, -1.5*d));
     positions.push_back(glm::vec3(w, -h, 0.0f));
@@ -281,57 +315,70 @@ int main(int argc, char *argv[])
 
     glm::mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate;
     projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
-
-    GLfloat currentFrame = 0.0f,
-            lastFrame = 0.0f,
-            dt = 0.0f;
+    S = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
 
     //  rendering
+    GLfloat currentFrame = 0.0f, lastFrame = 0.0f, dt = 0.0f;
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        glClearColor(0.5f, 0.54f, 0.6f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         currentFrame = glfwGetTime();
         dt = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        glBindVertexArray(vao1);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, brickTexture);
-            glUniform1i(glGetUniformLocation(shaderProgram, "brickTexture"), 0);
+        projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
+        view = camera.getViewMatrix();
 
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, faceTexture);
-            glUniform1i(glGetUniformLocation(shaderProgram, "faceTexture"), 1);
+        shaderManager.use(shaderProgramScene);
+        glBindVertexArray(objectVao);
+//            glActiveTexture(GL_TEXTURE0);
+//            glBindTexture(GL_TEXTURE_2D, brickTexture);
+//            glUniform1i(glGetUniformLocation(shaderProgramScene, "brickTexture"), 0);
+//            glActiveTexture(GL_TEXTURE1);
+//            glBindTexture(GL_TEXTURE_2D, faceTexture);
+//            glUniform1i(glGetUniformLocation(shaderProgramScene, "faceTexture"), 1);
+
+
 
             Tback = glm::translate(glm::mat4(1.0f), glm::vec3(w/2, h/2, d/2));
-            //R = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
+            R = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
             T = glm::translate(glm::mat4(1.0f), -1.0f * glm::vec3(w/2, h/2, d/2));
 
             do_movement(dt);
-            projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
-            view = camera.getViewMatrix();
-
             pv = projection * view;
             for (size_t i = 0; i < positions.size(); i++)
             {
                 freeTranslate = glm::translate(glm::mat4(1.0f), positions[i]);
                 model = freeTranslate * Tback * R * T;
                 mvp = pv * model;
-                glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, value_ptr(mvp));
+                glUniformMatrix4fv(mvpLocScene, 1, GL_FALSE, value_ptr(mvp));
+                glUniformMatrix4fv(modelLocScene, 1, GL_FALSE, value_ptr(model));
                 glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+                //glDrawArrays(GL_TRIANGLES, 0, 36);
             }
-
         glBindVertexArray(0);
+
+
+        shaderManager.use(shaderProgramLightSource);
+        glBindVertexArray(lightVao);
+            freeTranslate = glm::translate(glm::mat4(1.0f), lightPosition);
+            model = S * freeTranslate;
+            mvp = pv * model;
+            glUniformMatrix4fv(mvpLocLight, 1, GL_FALSE, value_ptr(mvp));
+            glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+
+
         glfwSwapBuffers(window);
     }
 
-    glDeleteVertexArrays(1, &vao1);
+    glDeleteVertexArrays(1, &objectVao);
+    glDeleteVertexArrays(1, &lightVao);
     glDeleteBuffers(1, &vbo1);
-    glDeleteBuffers(1, &vbo2);
     glDeleteBuffers(1, &ebo1);
 
     glfwTerminate();

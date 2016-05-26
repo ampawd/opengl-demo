@@ -2,12 +2,18 @@
 
 layout (location = 0) in vec4 position;
 layout (location = 1) in vec2 texCoord;
+layout (location = 2) in vec3 normal;
 
 uniform mat4 mvp;
-out vec2 vTexCoord;
+uniform mat4 model;
 
-void main()
-{
+out vec2 vTexCoord;
+out vec3 vNormal;
+out vec4 fragPosition;
+
+void main() {
 	gl_Position = mvp * position;
 	vTexCoord = vec2(texCoord.x, texCoord.y);
+	vNormal = normal;
+	fragPosition = model * position;
 }
