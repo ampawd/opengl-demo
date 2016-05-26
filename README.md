@@ -1,2 +1,2 @@
 # opengl-demo
-modern opengl-demo application
+opengl-demo application

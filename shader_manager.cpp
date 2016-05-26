@@ -5,7 +5,7 @@ ShaderManager::ShaderManager() : currentShaderProgram(0)
 }
 
 GLuint ShaderManager::buildProgram(const Shader& vshaderInstance, const Shader& fhaderInstance, const Shader& ghaderInstance)
-{
+{	
     if (!compileShader(vshaderInstance))
     {
         showShaderInfoLog(vshaderInstance);
@@ -48,10 +48,11 @@ GLuint ShaderManager::getUsingProgram() const
     return currentShaderProgram;
 }
 
-bool ShaderManager::compileShader(const Shader& shaderInstance)
+GLint ShaderManager::compileShader(const Shader& shaderInstance)
 {
     GLint compiled;
-    const char* source = shaderInstance.getSource().c_str();
+	std::string csource = shaderInstance.getSource();
+	const char* source = csource.c_str();
     glShaderSource(shaderInstance.getID(), 1, &source, NULL);
     glCompileShader(shaderInstance.getID());
     glGetShaderiv(shaderInstance.getID(), GL_COMPILE_STATUS, &compiled);

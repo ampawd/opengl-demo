@@ -14,7 +14,7 @@ class Shader
 {
     public:
         explicit Shader(GLint, const std::string&);
-        const std::string getSource() const;
+        std::string getSource() const;
         GLint getType() const;
         GLuint getID() const;
 

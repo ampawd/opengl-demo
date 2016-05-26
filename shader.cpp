@@ -2,6 +2,7 @@
 
 Shader::Shader(GLint _shaderType, const std::string& filepath): type(_shaderType)
 {
+	source = "";
     if (filepath.size() != 0)
     {
         std::ifstream ifs(filepath);
@@ -14,15 +15,14 @@ Shader::Shader(GLint _shaderType, const std::string& filepath): type(_shaderType
         while (!ifs.eof())
         {
             std::getline(ifs, line);
-            source += line; source += '\n';
+            source.append(line + '\n');
         }
         ifs.close();
     }
-
     ID = glCreateShader(_shaderType);
 }
 
-const std::string Shader::getSource() const
+std::string Shader::getSource() const
 {
     return source;
 }

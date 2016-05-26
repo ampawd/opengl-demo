@@ -14,7 +14,7 @@ class ShaderManager
     private:
         GLuint currentShaderProgram;
         char errorMessage[1024];
-        bool compileShader(const Shader&);
+        GLint compileShader(const Shader&);
         void showShaderInfoLog(const Shader&);
         void showProgramInfoLog(GLuint);
 
