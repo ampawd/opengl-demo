@@ -9,15 +9,15 @@ in vec4 fragPosition;
 
 out vec4 color;
 
+float ambientIntensity = 0.1;
+
 void main() {
-    float ambientIntensity = 0.1;
     vec3 ambient = ambientIntensity * lightColor;
 
     vec3 lightDir = normalize(lightPosition - vec3(fragPosition.xyz));
     vec3 norm = normalize(vNormal);
 
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor;
+    vec3 diffuse = max(dot(norm, lightDir), 0.0) * lightColor;
 
     color = vec4((ambient + diffuse) * objectColor, 1.0);
 }

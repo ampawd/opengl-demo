@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
         22, 23, 20
     };
     GLsizei indicesCount = sizeof(indices)/sizeof(GLuint);
-    glm::vec3 lightPosition(7*w, 200.0f, 300.0f);
+    glm::vec3 lightPosition(2*w, 200.0f, 10.0f);
 
 
     shaderManager.use(shaderProgramScene);
@@ -228,6 +228,7 @@ int main(int argc, char *argv[])
     normalLocScene = glGetAttribLocation(shaderProgramScene, "normal"),
     mvpLocScene = glGetUniformLocation(shaderProgramScene, "mvp"),
     modelLocScene = glGetUniformLocation(shaderProgramScene, "model"),
+    normalMatrixLoc = glGetUniformLocation(shaderProgramScene, "normalMatrix"),
     lightColorLoc = glGetUniformLocation(shaderProgramScene, "lightColor"),
     objectColorLoc = glGetUniformLocation(shaderProgramScene, "objectColor"),
     lightPositionLoc = glGetUniformLocation(shaderProgramScene, "lightPosition");
@@ -235,7 +236,6 @@ int main(int argc, char *argv[])
     glUniform3f(objectColorLoc, 1.0f, 0.6f, 0.5f);
     glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
     glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
-
 
     glGenVertexArrays(1, &objectVao);
     glBindVertexArray(objectVao);
@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
     positions.push_back(glm::vec3(2*w + 50, 0.0f, 0.0f));
     positions.push_back(glm::vec3(-2*w + 150, -1.5*h, -10.0f));
 
-    glm::mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate;
+    glm::mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate, normalMatrix;
     projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
     S = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
 
@@ -355,8 +355,11 @@ int main(int argc, char *argv[])
                 freeTranslate = glm::translate(glm::mat4(1.0f), positions[i]);
                 model = freeTranslate * Tback * R * T;
                 mvp = pv * model;
-                glUniformMatrix4fv(mvpLocScene, 1, GL_FALSE, value_ptr(mvp));
-                glUniformMatrix4fv(modelLocScene, 1, GL_FALSE, value_ptr(model));
+                normalMatrix = glm::transpose(glm::inverse(model));
+                glUniformMatrix4fv(mvpLocScene, 1, GL_FALSE, glm::value_ptr(mvp));
+                glUniformMatrix4fv(modelLocScene, 1, GL_FALSE, glm::value_ptr(model));
+                glUniformMatrix4fv(normalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+
                 glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
                 //glDrawArrays(GL_TRIANGLES, 0, 36);
             }

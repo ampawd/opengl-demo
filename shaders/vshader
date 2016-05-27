@@ -6,14 +6,15 @@ layout (location = 2) in vec3 normal;
 
 uniform mat4 mvp;
 uniform mat4 model;
+uniform mat4 normalMatrix;
 
+out vec4 fragPosition;
 out vec2 vTexCoord;
 out vec3 vNormal;
-out vec4 fragPosition;
 
 void main() {
 	gl_Position = mvp * position;
-	vTexCoord = vec2(texCoord.x, texCoord.y);
-	vNormal = normal;
 	fragPosition = model * position;
+	vTexCoord = vec2(texCoord.x, texCoord.y);
+	vNormal = mat3(normalMatrix) * normal;
 }
