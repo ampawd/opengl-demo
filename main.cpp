@@ -120,7 +120,6 @@ int main(int argc, char *argv[])
     ShaderManager shaderManager;
     GLuint shaderProgramScene, shaderProgramLightSource;
     Shader vshader(GL_VERTEX_SHADER, "shaders/vshader");
-    Shader vshader_lightsource(GL_VERTEX_SHADER, "shaders/vshader_lightsource");
     Shader fshader_lightings(GL_FRAGMENT_SHADER, "shaders/fshader_lightings");
     Shader fshader_lightsource(GL_FRAGMENT_SHADER, "shaders/fshader_lightsource");
     Shader gshader(GL_GEOMETRY_SHADER, "shaders/gshader");

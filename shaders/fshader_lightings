@@ -7,11 +7,11 @@ uniform vec3 cameraPosition;
 
 in vec3 vNormal;
 in vec4 fragPosition;
-
-out vec4 color;
-
 float ambientIntensity = 0.1f;
 float specularIntensity = 0.5f;
+
+
+out vec4 color;
 
 void main() {
     vec3 norm = normalize(vNormal);
