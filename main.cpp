@@ -22,8 +22,10 @@
 
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
+glm::vec3 cameraPosition(0.0, 0.0, 400.0);
+glm::vec3 lightPosition(400.0, 200.0f, 600.0f);
 
-Camera camera(glm::vec3(0.0, 0.0, 600.0), glm::vec3(0.0, 0.0, -20.0), glm::vec3(0.0, 1.0, 0.0));
+Camera camera(cameraPosition, glm::vec3(0.0, 0.0, -20.0), glm::vec3(0.0, 1.0, 0.0));
 
 bool keys[1024];
 void key_callback(GLFWwindow* window, int, int, int, int);
@@ -217,12 +219,9 @@ int main(int argc, char *argv[])
         22, 23, 20
     };
     GLsizei indicesCount = sizeof(indices)/sizeof(GLuint);
-    glm::vec3 lightPosition(2*w, 200.0f, 10.0f);
-
 
     shaderManager.use(shaderProgramScene);
     GLuint objectVao, vbo1, vbo2, ebo1,
-
     positionLocScene = glGetAttribLocation(shaderProgramScene, "position"),
     texCoordLocScene = glGetAttribLocation(shaderProgramScene, "texCoord"),
     normalLocScene = glGetAttribLocation(shaderProgramScene, "normal"),
@@ -231,11 +230,13 @@ int main(int argc, char *argv[])
     normalMatrixLoc = glGetUniformLocation(shaderProgramScene, "normalMatrix"),
     lightColorLoc = glGetUniformLocation(shaderProgramScene, "lightColor"),
     objectColorLoc = glGetUniformLocation(shaderProgramScene, "objectColor"),
-    lightPositionLoc = glGetUniformLocation(shaderProgramScene, "lightPosition");
+    lightPositionLoc = glGetUniformLocation(shaderProgramScene, "lightPosition"),
+    cameraPositionLocScene = glGetUniformLocation(shaderProgramScene, "cameraPosition");
 
     glUniform3f(objectColorLoc, 1.0f, 0.6f, 0.5f);
     glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
     glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
+    glUniform3f(cameraPositionLocScene, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
     glGenVertexArrays(1, &objectVao);
     glBindVertexArray(objectVao);
