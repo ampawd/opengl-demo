@@ -18,7 +18,7 @@ out vec3 LightPosition;
 
 void main() {
 	gl_Position = mvp * position;
-	fragPosition = view * model* position;
+	fragPosition = view * model * position;
 	vTexCoord = vec2(texCoord.x, texCoord.y);
 	vNormal = normalize(mat3(normalMatrix) * normal);
 	LightPosition = vec3(view * vec4(lightPosition, 1.0));

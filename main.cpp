@@ -23,7 +23,7 @@
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
 glm::vec3 cameraPosition(0.0, 0.0, 400.0);
-glm::vec3 lightPosition(200.0, 200.0f, 300.0f);
+glm::vec3 lightPosition(50.0, 250.0f, 400.0f);
 
 Camera camera(cameraPosition, glm::vec3(0.0, 0.0, -20.0), glm::vec3(0.0, 1.0, 0.0));
 
@@ -229,13 +229,25 @@ int main(int argc, char *argv[])
     modelLocScene = glGetUniformLocation(shaderProgramScene, "model"),
     viewLocScene = glGetUniformLocation(shaderProgramScene, "view"),
     normalMatrixLoc = glGetUniformLocation(shaderProgramScene, "normalMatrix"),
-    lightColorLoc = glGetUniformLocation(shaderProgramScene, "lightColor"),
-    objectColorLoc = glGetUniformLocation(shaderProgramScene, "objectColor"),
     lightPositionLoc = glGetUniformLocation(shaderProgramScene, "lightPosition"),
-    cameraPositionLocScene = glGetUniformLocation(shaderProgramScene, "cameraPosition");
+    cameraPositionLocScene = glGetUniformLocation(shaderProgramScene, "cameraPosition"),
+    matAmbientLoc  = glGetUniformLocation(shaderProgramScene, "material.ambient"),
+    matDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "material.diffuse"),
+    matSpecularLoc = glGetUniformLocation(shaderProgramScene, "material.specular"),
+    matShineLoc    = glGetUniformLocation(shaderProgramScene, "material.shininess"),
+    lightAmbientLoc  = glGetUniformLocation(shaderProgramScene, "light.ambient"),
+    lightDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "light.diffuse"),
+    lightSpecularLoc = glGetUniformLocation(shaderProgramScene, "light.specular");
 
-    glUniform3f(objectColorLoc, 1.0f, 0.6f, 0.5f);
-    glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
+    glUniform3f(matAmbientLoc,  0.4f, 0.7f, 0.6f);
+    glUniform3f(matDiffuseLoc,  0.4f, 0.7f, 0.6f);
+    glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
+    glUniform1f(matShineLoc,    64.0f);
+
+    glUniform3f(lightAmbientLoc,  0.2f, 0.2f, 0.2f);
+    glUniform3f(lightDiffuseLoc,  0.5f, 0.5f, 0.5f);
+    glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
+
     glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
     glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
 
@@ -348,7 +360,7 @@ int main(int argc, char *argv[])
 
 
             Tback = glm::translate(glm::mat4(1.0f), glm::vec3(w/2, h/2, d/2));
-            R = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
+            //R = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
             T = glm::translate(glm::mat4(1.0f), -1.0f * glm::vec3(w/2, h/2, d/2));
 
             do_movement(dt);
