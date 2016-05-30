@@ -23,7 +23,7 @@
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
 glm::vec3 cameraPosition(0.0, 0.0, 400.0);
-glm::vec3 lightPosition(400.0, 200.0f, 600.0f);
+glm::vec3 lightPosition(200.0, 200.0f, 300.0f);
 
 Camera camera(cameraPosition, glm::vec3(0.0, 0.0, -20.0), glm::vec3(0.0, 1.0, 0.0));
 
@@ -127,6 +127,7 @@ int main(int argc, char *argv[])
     shaderProgramScene = shaderManager.buildProgram(vshader, fshader_lightings, gshader);
     shaderProgramLightSource = shaderManager.buildProgram(vshader, fshader_lightsource, gshader);
 
+
     //  vertex position, indices
     GLfloat w = 100.0f, h = 100.0f, d = 100.0f; //  world space
     GLfloat vertices1[] =
@@ -226,6 +227,7 @@ int main(int argc, char *argv[])
     normalLocScene = glGetAttribLocation(shaderProgramScene, "normal"),
     mvpLocScene = glGetUniformLocation(shaderProgramScene, "mvp"),
     modelLocScene = glGetUniformLocation(shaderProgramScene, "model"),
+    viewLocScene = glGetUniformLocation(shaderProgramScene, "view"),
     normalMatrixLoc = glGetUniformLocation(shaderProgramScene, "normalMatrix"),
     lightColorLoc = glGetUniformLocation(shaderProgramScene, "lightColor"),
     objectColorLoc = glGetUniformLocation(shaderProgramScene, "objectColor"),
@@ -235,7 +237,7 @@ int main(int argc, char *argv[])
     glUniform3f(objectColorLoc, 1.0f, 0.6f, 0.5f);
     glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
     glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
-    glUniform3f(cameraPositionLocScene, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+    glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
 
     glGenVertexArrays(1, &objectVao);
     glBindVertexArray(objectVao);
@@ -334,6 +336,7 @@ int main(int argc, char *argv[])
         view = camera.getViewMatrix();
 
         shaderManager.use(shaderProgramScene);
+        glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
         glBindVertexArray(objectVao);
 //            glActiveTexture(GL_TEXTURE0);
 //            glBindTexture(GL_TEXTURE_2D, brickTexture);
@@ -355,11 +358,11 @@ int main(int argc, char *argv[])
                 freeTranslate = glm::translate(glm::mat4(1.0f), positions[i]);
                 model = freeTranslate * Tback * R * T;
                 mvp = pv * model;
-                normalMatrix = glm::transpose(glm::inverse(model));
+                normalMatrix = glm::transpose(glm::inverse(view * model));
                 glUniformMatrix4fv(mvpLocScene, 1, GL_FALSE, glm::value_ptr(mvp));
                 glUniformMatrix4fv(modelLocScene, 1, GL_FALSE, glm::value_ptr(model));
+                glUniformMatrix4fv(viewLocScene, 1, GL_FALSE, glm::value_ptr(view));
                 glUniformMatrix4fv(normalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
-
                 glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
                 //glDrawArrays(GL_TRIANGLES, 0, 36);
             }

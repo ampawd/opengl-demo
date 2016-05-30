@@ -2,28 +2,27 @@
 
 uniform vec3 lightColor;
 uniform vec3 objectColor;
-uniform vec3 lightPosition;
 uniform vec3 cameraPosition;
 
 in vec3 vNormal;
+in vec3 LightPosition;
 in vec4 fragPosition;
 float ambientIntensity = 0.1f;
 float specularIntensity = 0.5f;
 
-
 out vec4 color;
 
 void main() {
-    vec3 norm = normalize(vNormal);
+    vec3 norm = vNormal;
 
     vec3 ambient = ambientIntensity * lightColor;
 
-    vec3 lightDir = normalize(lightPosition - vec3(fragPosition.xyz));
+    vec3 lightDir = normalize(LightPosition - vec3(fragPosition.xyz));
     vec3 diffuse = max(dot(norm, lightDir), 0.0) * lightColor;
 
-    vec3 viewDir = normalize(cameraPosition - vec3(fragPosition.xyz));
+    vec3 viewDir = normalize(-vec3(fragPosition.xyz));
     vec3 reflectDir = reflect(-lightDir, norm);
-    vec3 specular = specularIntensity * pow(max(dot(viewDir, reflectDir), 0.0f), 64) * lightColor;
+    vec3 specular = specularIntensity * pow(max(dot(viewDir, reflectDir), 0.0f), 32) * lightColor;
 
     color = vec4((ambient + diffuse + specular) * objectColor, 1.0f);    //  phong lighting model
 }
