@@ -8,18 +8,14 @@ uniform mat4 mvp;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 normalMatrix;
-uniform vec3 lightPosition;
 
 out vec4 fragPosition;
 out vec2 vTexCoord;
 out vec3 vNormal;
 
-out vec3 LightPosition;
-
 void main() {
 	gl_Position = mvp * position;
 	fragPosition = view * model * position;
-	vTexCoord = vec2(texCoord.x, texCoord.y);
-	vNormal = normalize(mat3(normalMatrix) * normal);
-	LightPosition = vec3(view * vec4(lightPosition, 1.0));
+	vTexCoord = texCoord;
+	vNormal = mat3(normalMatrix) * normal;
 }

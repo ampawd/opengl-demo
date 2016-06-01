@@ -23,9 +23,11 @@
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
 glm::vec3 cameraPosition(0.0, 0.0, 400.0);
-glm::vec3 lightPosition(150.0, 245.0f, 400.0f);
+glm::vec3 cameraTarget(0.0, 0.0, -20.0);
+glm::vec3 cameraUp(0.0, 1.0, 0.0);
+glm::vec3 lightPosition(100.0, 0.0f, 500.0f);
 
-Camera camera(cameraPosition, glm::vec3(0.0, 0.0, -20.0), glm::vec3(0.0, 1.0, 0.0));
+Camera camera(cameraPosition, cameraTarget, cameraUp);
 
 bool keys[1024];
 void key_callback(GLFWwindow* window, int, int, int, int);
@@ -129,6 +131,8 @@ int main(int argc, char *argv[])
 
 
     //  vertex position, indices
+    //  add 6 vertices for each face to make lighting smooth
+    //  then add specular map
     GLfloat w = 100.0f, h = 100.0f, d = 100.0f; //  world space
     GLfloat vertices1[] =
     {
@@ -229,22 +233,22 @@ int main(int argc, char *argv[])
     modelLocScene = glGetUniformLocation(shaderProgramScene, "model"),
     viewLocScene = glGetUniformLocation(shaderProgramScene, "view"),
     normalMatrixLoc = glGetUniformLocation(shaderProgramScene, "normalMatrix"),
-    lightPositionLoc = glGetUniformLocation(shaderProgramScene, "lightPosition"),
     cameraPositionLocScene = glGetUniformLocation(shaderProgramScene, "cameraPosition"),
-    matAmbientLoc  = glGetUniformLocation(shaderProgramScene, "material.ambient"),
-    matDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "material.diffuse"),
+    //matAmbientLoc  = glGetUniformLocation(shaderProgramScene, "material.ambient"),
+    //matDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "material.diffuse"),
     matSpecularLoc = glGetUniformLocation(shaderProgramScene, "material.specular"),
     matShineLoc    = glGetUniformLocation(shaderProgramScene, "material.shininess"),
     lightAmbientLoc  = glGetUniformLocation(shaderProgramScene, "light.ambient"),
     lightDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "light.diffuse"),
-    lightSpecularLoc = glGetUniformLocation(shaderProgramScene, "light.specular");
+    lightSpecularLoc = glGetUniformLocation(shaderProgramScene, "light.specular"),
+    lightPositionLoc = glGetUniformLocation(shaderProgramScene, "light.position");
 
-    glUniform3f(matAmbientLoc,  0.4f, 0.7f, 0.8f);
-    glUniform3f(matDiffuseLoc,  0.4f, 0.7f, 0.8f);
+    //glUniform3f(matAmbientLoc,  0.4f, 0.7f, 0.8f);
+    //glUniform3f(matDiffuseLoc,  0.4f, 0.7f, 0.8f);
     glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
     glUniform1f(matShineLoc,    32.0f);
 
-    glUniform3f(lightAmbientLoc,  0.2f, 0.2f, 0.2f);
+    glUniform3f(lightAmbientLoc,  0.5f, 0.5f, 0.5f);
     glUniform3f(lightDiffuseLoc,  0.5f, 0.5f, 0.5f);
     glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
 
@@ -263,13 +267,15 @@ int main(int argc, char *argv[])
         glVertexAttribPointer(positionLocScene, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (GLvoid*)0);
         glEnableVertexAttribArray(positionLocScene);
 
-//        glGenBuffers(1, &vbo2);
-//        glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-//        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
-//        glVertexAttribPointer(texCoordLocScene, 2, GL_FLOAT, GL_FALSE, 2*sizeof(GLfloat), (GLvoid*)0);
+        glGenBuffers(1, &vbo2);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo2);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
+        glVertexAttribPointer(texCoordLocScene, 2, GL_FLOAT, GL_FALSE, 2*sizeof(GLfloat), (GLvoid*)0);
+        glEnableVertexAttribArray(texCoordLocScene);
 
         glVertexAttribPointer(normalLocScene, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
         glEnableVertexAttribArray(normalLocScene);
+
         glBindBuffer(GL_ARRAY_BUFFER, 0);   //  unbind
     glBindVertexArray(0);   //  unbind
 
@@ -289,21 +295,21 @@ int main(int argc, char *argv[])
 
 
     //  brick texture
-//    GLuint brickTexture;
-//    glGenTextures(1, &brickTexture);
-//    glBindTexture(GL_TEXTURE_2D, brickTexture);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);       //  Set texture wrapping to GL_REPEAT (usually basic wrapping method)
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//    int brickWidth, brickHeight;
-//    unsigned char* brickImage = SOIL_load_image("images/container2.png", &brickWidth, &brickHeight, 0, SOIL_LOAD_RGB);
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, brickWidth, brickHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, brickImage);
-//    glGenerateMipmap(GL_TEXTURE_2D);
-//    SOIL_free_image_data(brickImage);
-//    glBindTexture(GL_TEXTURE_2D, 0);
-//
-//    //  face texture
+    GLuint brickTexture;
+    glGenTextures(1, &brickTexture);
+    glBindTexture(GL_TEXTURE_2D, brickTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);       //  Set texture wrapping to GL_REPEAT (usually basic wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    int brickWidth, brickHeight;
+    unsigned char* brickImage = SOIL_load_image("images/container2.png", &brickWidth, &brickHeight, 0, SOIL_LOAD_RGB);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, brickWidth, brickHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, brickImage);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    SOIL_free_image_data(brickImage);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    //  face texture
 //    GLuint faceTexture;
 //    glGenTextures(1, &faceTexture);
 //    glBindTexture(GL_TEXTURE_2D, faceTexture);
@@ -340,7 +346,6 @@ int main(int argc, char *argv[])
         glfwPollEvents();
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         currentFrame = glfwGetTime();
         dt = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -350,16 +355,16 @@ int main(int argc, char *argv[])
 
         shaderManager.use(shaderProgramScene);
         glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
+        glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, brickTexture);
+        glUniform1i(glGetUniformLocation(shaderProgramScene, "material.diffuse"), 0);
+//        glActiveTexture(GL_TEXTURE1);
+//        glBindTexture(GL_TEXTURE_2D, faceTexture);
+//        glUniform1i(glGetUniformLocation(shaderProgramScene, "material.diffuse"), 1);
+
         glBindVertexArray(objectVao);
-//            glActiveTexture(GL_TEXTURE0);
-//            glBindTexture(GL_TEXTURE_2D, brickTexture);
-//            glUniform1i(glGetUniformLocation(shaderProgramScene, "brickTexture"), 0);
-//            glActiveTexture(GL_TEXTURE1);
-//            glBindTexture(GL_TEXTURE_2D, faceTexture);
-//            glUniform1i(glGetUniformLocation(shaderProgramScene, "faceTexture"), 1);
-
-
-
             Tback = glm::translate(glm::mat4(1.0f), glm::vec3(w/2, h/2, d/2));
             //R = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
             T = glm::translate(glm::mat4(1.0f), -1.0f * glm::vec3(w/2, h/2, d/2));
@@ -382,6 +387,7 @@ int main(int argc, char *argv[])
         glBindVertexArray(0);
 
 
+        //  render light source
         shaderManager.use(shaderProgramLightSource);
         glBindVertexArray(lightVao);
             freeTranslate = glm::translate(glm::mat4(1.0f), lightPosition);
