@@ -15,7 +15,7 @@ out vec3 vNormal;
 
 void main() {
 	gl_Position = mvp * position;
-	fragPosition = view * model * position;
+	fragPosition = model * position;
 	vTexCoord = texCoord;
 	vNormal = mat3(normalMatrix) * normal;
 }

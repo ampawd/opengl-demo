@@ -1,9 +1,8 @@
 #version 450 core
 
-struct Material
-{
+struct Material {
     sampler2D diffuse;
-    vec3 specular;
+    sampler2D specular;
     float shininess;
 };
 
@@ -18,22 +17,20 @@ uniform vec3 cameraPosition;
 uniform Material material;
 uniform Light light;
 
-in vec4 fragPosition;
-in vec2 vTexCoord;
 in vec3 vNormal;
-
+in vec2 vTexCoord;
+in vec4 fragPosition;
 out vec4 color;
 
 void main() {
-    vec3 norm = normalize(vNormal);
+    vec3 norm = vNormal;
     vec3 lightDir = normalize(light.position - vec3(fragPosition.xyz));
-    vec3 viewDir = normalize(-vec3(fragPosition.xyz));
+    vec3 viewDir = normalize(cameraPosition - vec3(fragPosition.xyz));
     vec3 reflectDir = reflect(-lightDir, norm);
 
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, vTexCoord));
-    vec3 diffuse = light.diffuse * (max(dot(norm, lightDir), 0.0)) * vec3(texture(material.diffuse, vTexCoord));
-
-    vec3 specular = light.specular * (material.specular * pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess));
+    vec3 ambient  = light.ambient * vec3(texture(material.diffuse, vTexCoord));
+    vec3 diffuse  = light.diffuse * max(dot(norm, lightDir), 0.0) * vec3(texture(material.diffuse, vTexCoord));
+    vec3 specular = light.specular * pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess) * vec3(texture(material.specular, vTexCoord));
 
     color = vec4(ambient + diffuse + specular, 1.0f);    //  phong lighting model
 }

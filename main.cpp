@@ -23,11 +23,9 @@
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
 glm::vec3 cameraPosition(0.0, 0.0, 400.0);
-glm::vec3 cameraTarget(0.0, 0.0, -20.0);
-glm::vec3 cameraUp(0.0, 1.0, 0.0);
-glm::vec3 lightPosition(100.0, 0.0f, 500.0f);
+glm::vec3 lightPosition(150.0, 245.0f, 400.0f);
 
-Camera camera(cameraPosition, cameraTarget, cameraUp);
+Camera camera(cameraPosition, glm::vec3(0.0, 0.0, -20.0), glm::vec3(0.0, 1.0, 0.0));
 
 bool keys[1024];
 void key_callback(GLFWwindow* window, int, int, int, int);
@@ -125,80 +123,44 @@ int main(int argc, char *argv[])
     Shader fshader_lightings(GL_FRAGMENT_SHADER, "shaders/fshader_lightings");
     Shader fshader_lightsource(GL_FRAGMENT_SHADER, "shaders/fshader_lightsource");
     Shader gshader(GL_GEOMETRY_SHADER, "shaders/gshader");
-
     shaderProgramScene = shaderManager.buildProgram(vshader, fshader_lightings, gshader);
     shaderProgramLightSource = shaderManager.buildProgram(vshader, fshader_lightsource, gshader);
 
 
     //  vertex position, indices
-    //  add 6 vertices for each face to make lighting smooth
-    //  then add specular map
     GLfloat w = 100.0f, h = 100.0f, d = 100.0f; //  world space
     GLfloat vertices1[] =
     {
-        //  positions      //   normals
-        0.0f, 0.0f, d,      0.0f, 0.0f, 1.0f,    //  front
-        w,    0.0f, d,      0.0f, 0.0f, 1.0f,
-        w,    h,    d,      0.0f, 0.0f, 1.0f,
-        0.0f, h,    d,      0.0f, 0.0f, 1.0f,
+        //  positions       //   normals        //  textures
+        0.0f, 0.0f, d,      0.0f, 0.0f, 1.0f,   0.0f, 0.0f,     //  front
+        w,    0.0f, d,      0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+        w,    h,    d,      0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+        0.0f, h,    d,      0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
 
-        0.0f, h,    d,      0.0f, 1.0f, 0.0f,    //  top
-        w,    h,    d,      0.0f, 1.0f, 0.0f,
-        w,    h,    0.0f,   0.0f, 1.0f, 0.0f,
-        0.0f, h,    0.0f,   0.0f, 1.0f, 0.0f,
+        0.0f, h,    d,      0.0f, 1.0f, 0.0f,   0.0f, 0.0f,     //  top
+        w,    h,    d,      0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+        w,    h,    0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+        0.0f, h,    0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
 
-        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,   //  back
-        w,    0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
-        w,    h,    0.0f,  0.0f, 0.0f, -1.0f,
-        0.0f, h,    0.0f,  0.0f, 0.0f, -1.0f,
+        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,   0.0f, 0.0f,     //  back
+        w,    0.0f, 0.0f,  0.0f, 0.0f, -1.0f,   1.0f, 0.0f,
+        w,    h,    0.0f,  0.0f, 0.0f, -1.0f,   1.0f, 1.0f,
+        0.0f, h,    0.0f,  0.0f, 0.0f, -1.0f,   0.0f, 1.0f,
 
-        0.0f, 0.0f, d,     0.0f, -1.0f, 0.0f,   //  bottom
-        w,    0.0f, d,     0.0f, -1.0f, 0.0f,
-        w,    0.0f, 0.0f,  0.0f, -1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,
+        0.0f, 0.0f, d,     0.0f, -1.0f, 0.0f,   0.0f, 0.0f,     //  bottom
+        w,    0.0f, d,     0.0f, -1.0f, 0.0f,   1.0f, 0.0f,
+        w,    0.0f, 0.0f,  0.0f, -1.0f, 0.0f,   1.0f, 1.0f,
+        0.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,   0.0f, 1.0f,
 
-        0.0f, 0.0f, d,     -1.0f, 0.0f, 0.0f,   //  left
-        0.0f, 0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,
-        0.0f, h,    0.0f,  -1.0f, 0.0f, 0.0f,
-        0.0f, h,    d,     -1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, d,     -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,     //  left
+        0.0f, 0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+        0.0f, h,    0.0f,  -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+        0.0f, h,    d,     -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
 
-        w,    0.0f, d,      1.0f, 0.0f, 0.0f,    //  right
-        w,    0.0f, 0.0f,   1.0f, 0.0f, 0.0f,
-        w,    h,    0.0f,   1.0f, 0.0f, 0.0f,
-        w,    h,    d,      1.0f, 0.0f, 0.0f
-    };
-
-    GLfloat texCoords[] =
-    {
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f,
-
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f,
-
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f,
-
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f,
-
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f,
-
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f,
+        w,    0.0f, d,      1.0f, 0.0f, 0.0f,   0.0f, 0.0f,     //  right
+        w,    0.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+        w,    h,    0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+        w,    h,    d,      1.0f, 0.0f, 0.0f,    0.0f, 1.0f,
     };
 
     GLuint indices[] =
@@ -225,7 +187,7 @@ int main(int argc, char *argv[])
     GLsizei indicesCount = sizeof(indices)/sizeof(GLuint);
 
     shaderManager.use(shaderProgramScene);
-    GLuint objectVao, vbo1, vbo2, ebo1,
+    GLuint objectVao, vbo1, ebo1,
     positionLocScene = glGetAttribLocation(shaderProgramScene, "position"),
     texCoordLocScene = glGetAttribLocation(shaderProgramScene, "texCoord"),
     normalLocScene = glGetAttribLocation(shaderProgramScene, "normal"),
@@ -235,20 +197,19 @@ int main(int argc, char *argv[])
     normalMatrixLoc = glGetUniformLocation(shaderProgramScene, "normalMatrix"),
     cameraPositionLocScene = glGetUniformLocation(shaderProgramScene, "cameraPosition"),
     //matAmbientLoc  = glGetUniformLocation(shaderProgramScene, "material.ambient"),
-    //matDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "material.diffuse"),
+    matDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "material.diffuse"),
     matSpecularLoc = glGetUniformLocation(shaderProgramScene, "material.specular"),
     matShineLoc    = glGetUniformLocation(shaderProgramScene, "material.shininess"),
+    lightPositionLoc = glGetUniformLocation(shaderProgramScene, "light.position"),
     lightAmbientLoc  = glGetUniformLocation(shaderProgramScene, "light.ambient"),
     lightDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "light.diffuse"),
-    lightSpecularLoc = glGetUniformLocation(shaderProgramScene, "light.specular"),
-    lightPositionLoc = glGetUniformLocation(shaderProgramScene, "light.position");
+    lightSpecularLoc = glGetUniformLocation(shaderProgramScene, "light.specular");
 
     //glUniform3f(matAmbientLoc,  0.4f, 0.7f, 0.8f);
     //glUniform3f(matDiffuseLoc,  0.4f, 0.7f, 0.8f);
-    glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
+    //glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
     glUniform1f(matShineLoc,    32.0f);
-
-    glUniform3f(lightAmbientLoc,  0.5f, 0.5f, 0.5f);
+    glUniform3f(lightAmbientLoc,  0.2f, 0.2f, 0.2f);
     glUniform3f(lightDiffuseLoc,  0.5f, 0.5f, 0.5f);
     glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
 
@@ -264,17 +225,14 @@ int main(int argc, char *argv[])
         glGenBuffers(1, &vbo1);
         glBindBuffer(GL_ARRAY_BUFFER, vbo1);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
-        glVertexAttribPointer(positionLocScene, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (GLvoid*)0);
+        glVertexAttribPointer(positionLocScene, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid*)0);
         glEnableVertexAttribArray(positionLocScene);
 
-        glGenBuffers(1, &vbo2);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
-        glVertexAttribPointer(texCoordLocScene, 2, GL_FLOAT, GL_FALSE, 2*sizeof(GLfloat), (GLvoid*)0);
-        glEnableVertexAttribArray(texCoordLocScene);
-
-        glVertexAttribPointer(normalLocScene, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+        glVertexAttribPointer(normalLocScene, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
         glEnableVertexAttribArray(normalLocScene);
+
+        glVertexAttribPointer(texCoordLocScene, 2, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(texCoordLocScene);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);   //  unbind
     glBindVertexArray(0);   //  unbind
@@ -289,15 +247,15 @@ int main(int argc, char *argv[])
     glBindVertexArray(lightVao);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
         glBindBuffer(GL_ARRAY_BUFFER, vbo1);
-        glVertexAttribPointer(positionLocLight, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat), (GLvoid*)0);
+        glVertexAttribPointer(positionLocLight, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid*)0);
         glEnableVertexAttribArray(positionLocLight);
     glBindVertexArray(0);
 
 
-    //  brick texture
-    GLuint brickTexture;
-    glGenTextures(1, &brickTexture);
-    glBindTexture(GL_TEXTURE_2D, brickTexture);
+    //  wooden box texture
+    GLuint woodenBoxTexture;
+    glGenTextures(1, &woodenBoxTexture);
+    glBindTexture(GL_TEXTURE_2D, woodenBoxTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);       //  Set texture wrapping to GL_REPEAT (usually basic wrapping method)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
@@ -309,20 +267,21 @@ int main(int argc, char *argv[])
     SOIL_free_image_data(brickImage);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    //  face texture
-//    GLuint faceTexture;
-//    glGenTextures(1, &faceTexture);
-//    glBindTexture(GL_TEXTURE_2D, faceTexture);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	    //  Set texture wrapping to GL_REPEAT (usually basic wrapping method)
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//    int faceWidth, faceHeight;
-//    unsigned char* faceImage = SOIL_load_image("images/t3.jpg", &faceWidth, &faceHeight, 0, SOIL_LOAD_RGB);
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, faceWidth, faceHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, faceImage);
-//    glGenerateMipmap(GL_TEXTURE_2D);
-//    SOIL_free_image_data(faceImage);
-//    glBindTexture(GL_TEXTURE_2D, 0);
+
+    //  frame texture
+    GLuint woodenBoxTextureFrame;
+    glGenTextures(1, &woodenBoxTextureFrame);
+    glBindTexture(GL_TEXTURE_2D, woodenBoxTextureFrame);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	    //  Set texture wrapping to GL_REPEAT (usually basic wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    int faceWidth, faceHeight;
+    unsigned char* faceImage = SOIL_load_image("images/container2_specular.png", &faceWidth, &faceHeight, 0, SOIL_LOAD_RGB);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, faceWidth, faceHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, faceImage);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    SOIL_free_image_data(faceImage);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
 
     std::vector<glm::vec3> positions;
@@ -346,6 +305,7 @@ int main(int argc, char *argv[])
         glfwPollEvents();
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         currentFrame = glfwGetTime();
         dt = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -357,16 +317,17 @@ int main(int argc, char *argv[])
         glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
         glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, brickTexture);
-        glUniform1i(glGetUniformLocation(shaderProgramScene, "material.diffuse"), 0);
-//        glActiveTexture(GL_TEXTURE1);
-//        glBindTexture(GL_TEXTURE_2D, faceTexture);
-//        glUniform1i(glGetUniformLocation(shaderProgramScene, "material.diffuse"), 1);
-
         glBindVertexArray(objectVao);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, woodenBoxTexture);
+            glUniform1i(matDiffuseLoc, 0);
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, woodenBoxTextureFrame);
+            glUniform1i(matSpecularLoc, 1);
+
             Tback = glm::translate(glm::mat4(1.0f), glm::vec3(w/2, h/2, d/2));
-            //R = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
+            R = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
             T = glm::translate(glm::mat4(1.0f), -1.0f * glm::vec3(w/2, h/2, d/2));
 
             do_movement(dt);
@@ -376,18 +337,16 @@ int main(int argc, char *argv[])
                 freeTranslate = glm::translate(glm::mat4(1.0f), positions[i]);
                 model = freeTranslate * Tback * R * T;
                 mvp = pv * model;
-                normalMatrix = glm::transpose(glm::inverse(view * model));
+                normalMatrix = glm::transpose(glm::inverse(model));
                 glUniformMatrix4fv(mvpLocScene, 1, GL_FALSE, glm::value_ptr(mvp));
                 glUniformMatrix4fv(modelLocScene, 1, GL_FALSE, glm::value_ptr(model));
                 glUniformMatrix4fv(viewLocScene, 1, GL_FALSE, glm::value_ptr(view));
                 glUniformMatrix4fv(normalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
                 glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
-                //glDrawArrays(GL_TRIANGLES, 0, 36);
             }
         glBindVertexArray(0);
 
 
-        //  render light source
         shaderManager.use(shaderProgramLightSource);
         glBindVertexArray(lightVao);
             freeTranslate = glm::translate(glm::mat4(1.0f), lightPosition);
