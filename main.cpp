@@ -24,7 +24,7 @@
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
 glm::vec3 cameraPosition(0.0, 0.0, 400.0);
-glm::vec3 lightPosition(150.0, 245.0f, 400.0f);
+glm::vec3 lightPosition(100.0, 100.0f, 100.0f);
 
 Camera camera(cameraPosition, glm::vec3(0.0, 0.0, -20.0), glm::vec3(0.0, 1.0, 0.0));
 
@@ -128,7 +128,41 @@ int main(int argc, char *argv[])
     shaderProgramLightSource = shaderManager.buildProgram(vshader, fshader_lightsource, gshader);
 
 
-    //  vertex position, indices
+    shaderManager.use(shaderProgramScene);
+    GLuint objectVao, vbo1, ebo1,
+    positionLocScene = glGetAttribLocation(shaderProgramScene, "position"),
+    texCoordLocScene = glGetAttribLocation(shaderProgramScene, "texCoord"),
+    normalLocScene = glGetAttribLocation(shaderProgramScene, "normal"),
+    mvpLocScene = glGetUniformLocation(shaderProgramScene, "mvp"),
+    modelLocScene = glGetUniformLocation(shaderProgramScene, "model"),
+    viewLocScene = glGetUniformLocation(shaderProgramScene, "view"),
+    normalMatrixLoc = glGetUniformLocation(shaderProgramScene, "normalMatrix"),
+    cameraPositionLocScene = glGetUniformLocation(shaderProgramScene, "cameraPosition"),
+    matDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "material.diffuse"),
+    matSpecularLoc = glGetUniformLocation(shaderProgramScene, "material.specular"),
+    matShineLoc    = glGetUniformLocation(shaderProgramScene, "material.shininess"),
+    lightConstantLoc = glGetUniformLocation(shaderProgramScene, "light.constant"),
+    lightLinearLoc = glGetUniformLocation(shaderProgramScene, "light.linear"),
+    lightQuadraticLoc = glGetUniformLocation(shaderProgramScene, "light.quadratic"),
+    lightPositionLoc = glGetUniformLocation(shaderProgramScene, "light.position"),
+    lightAmbientLoc  = glGetUniformLocation(shaderProgramScene, "light.ambient"),
+    lightDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "light.diffuse"),
+    lightSpecularLoc = glGetUniformLocation(shaderProgramScene, "light.specular");
+
+    //glUniform3f(matAmbientLoc,  0.4f, 0.7f, 0.8f);
+    //glUniform3f(matDiffuseLoc,  0.4f, 0.7f, 0.8f);
+    //glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
+    glUniform1f(matShineLoc,    32.0f);
+    glUniform3f(lightAmbientLoc,  0.2f, 0.2f, 0.2f);
+    glUniform3f(lightDiffuseLoc,  0.5f, 0.5f, 0.5f);
+    glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
+    glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
+    glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
+    glUniform1f(lightConstantLoc,  1.0);
+    glUniform1f(lightLinearLoc,    0.1);
+    glUniform1f(lightQuadraticLoc, 0.01);
+
+    //  set geometries
     GLfloat w = 100.0f, h = 100.0f, d = 100.0f; //  world space
     GLfloat vertices1[] =
     {
@@ -185,39 +219,7 @@ int main(int argc, char *argv[])
         20, 21, 22,
         22, 23, 20
     };
-
     GLsizei indicesCount = sizeof(indices)/sizeof(GLuint);
-
-    shaderManager.use(shaderProgramScene);
-    GLuint objectVao, vbo1, ebo1,
-    positionLocScene = glGetAttribLocation(shaderProgramScene, "position"),
-    texCoordLocScene = glGetAttribLocation(shaderProgramScene, "texCoord"),
-    normalLocScene = glGetAttribLocation(shaderProgramScene, "normal"),
-    mvpLocScene = glGetUniformLocation(shaderProgramScene, "mvp"),
-    modelLocScene = glGetUniformLocation(shaderProgramScene, "model"),
-    viewLocScene = glGetUniformLocation(shaderProgramScene, "view"),
-    normalMatrixLoc = glGetUniformLocation(shaderProgramScene, "normalMatrix"),
-    cameraPositionLocScene = glGetUniformLocation(shaderProgramScene, "cameraPosition"),
-    //matAmbientLoc  = glGetUniformLocation(shaderProgramScene, "material.ambient"),
-    matDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "material.diffuse"),
-    matSpecularLoc = glGetUniformLocation(shaderProgramScene, "material.specular"),
-    matShineLoc    = glGetUniformLocation(shaderProgramScene, "material.shininess"),
-    lightDirectionLoc = glGetUniformLocation(shaderProgramScene, "light.direction"),
-    lightAmbientLoc  = glGetUniformLocation(shaderProgramScene, "light.ambient"),
-    lightDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "light.diffuse"),
-    lightSpecularLoc = glGetUniformLocation(shaderProgramScene, "light.specular");
-
-    //glUniform3f(matAmbientLoc,  0.4f, 0.7f, 0.8f);
-    //glUniform3f(matDiffuseLoc,  0.4f, 0.7f, 0.8f);
-    //glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
-    glUniform1f(matShineLoc,    32.0f);
-    glUniform3f(lightAmbientLoc,  0.1f, 0.1f, 0.1f);
-    glUniform3f(lightDiffuseLoc,  0.6f, 0.6f, 0.6f);
-    glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
-
-    //glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
-    glUniform3f(lightDirectionLoc,  0.0, 0.0f, -100.0f);
-    glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
 
     glGenVertexArrays(1, &objectVao);
     glBindVertexArray(objectVao);
@@ -241,18 +243,18 @@ int main(int argc, char *argv[])
     glBindVertexArray(0);   //  unbind
 
 
-//    shaderManager.use(shaderProgramLightSource);
-//    GLuint positionLocLight = glGetAttribLocation(shaderProgramLightSource, "position"),
-//           mvpLocLight = glGetUniformLocation(shaderProgramLightSource, "mvp");
-//    //  light source is cube
-//    GLuint lightVao;
-//    glGenVertexArrays(1, &lightVao);
-//    glBindVertexArray(lightVao);
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
-//        glBindBuffer(GL_ARRAY_BUFFER, vbo1);
-//        glVertexAttribPointer(positionLocLight, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid*)0);
-//        glEnableVertexAttribArray(positionLocLight);
-//    glBindVertexArray(0);
+    shaderManager.use(shaderProgramLightSource);
+    GLuint positionLocLight = glGetAttribLocation(shaderProgramLightSource, "position"),
+           mvpLocLight = glGetUniformLocation(shaderProgramLightSource, "mvp");
+    //  light source is cube
+    GLuint lightVao;
+    glGenVertexArrays(1, &lightVao);
+    glBindVertexArray(lightVao);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+        glVertexAttribPointer(positionLocLight, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid*)0);
+        glEnableVertexAttribArray(positionLocLight);
+    glBindVertexArray(0);
 
 
     //  wooden box texture
@@ -288,7 +290,7 @@ int main(int argc, char *argv[])
 
     std::vector<glm::vec3> positions;
     positions.push_back(glm::vec3(0.0f, -300.0f, 50.0f));
-    positions.push_back(glm::vec3(-3*w, 0.0f, 0.0f));
+    positions.push_back(glm::vec3(-5*w, 100.0f, 100.0f));
     positions.push_back(glm::vec3(0.0f, h, -1.5*d));
     positions.push_back(glm::vec3(w, -h, 50.0f));
     positions.push_back(glm::vec3(-3*w, -3*h, -100.0f));
@@ -300,6 +302,8 @@ int main(int argc, char *argv[])
     glm::mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate, normalMatrix;
     projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
     S = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
+
+    std::cout << glm::length(lightPosition - positions[1]);
 
     //  rendering
     GLfloat currentFrame = 0.0f, lastFrame = 0.0f, dt = 0.0f;
@@ -318,8 +322,8 @@ int main(int argc, char *argv[])
         view = camera.getViewMatrix();
 
         shaderManager.use(shaderProgramScene);
+        glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
         glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
-        //glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
 
         glBindVertexArray(objectVao);
             glActiveTexture(GL_TEXTURE0);
@@ -352,21 +356,21 @@ int main(int argc, char *argv[])
         glBindVertexArray(0);
 
 
-//        shaderManager.use(shaderProgramLightSource);
-//        glBindVertexArray(lightVao);
-//            freeTranslate = glm::translate(glm::mat4(1.0f), lightPosition);
-//            model = S * freeTranslate;
-//            mvp = pv * model;
-//            glUniformMatrix4fv(mvpLocLight, 1, GL_FALSE, value_ptr(mvp));
-//            glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
-//        glBindVertexArray(0);
+        shaderManager.use(shaderProgramLightSource);
+        glBindVertexArray(lightVao);
+            freeTranslate = glm::translate(glm::mat4(1.0f), lightPosition);
+            model = S * freeTranslate;
+            mvp = pv * model;
+            glUniformMatrix4fv(mvpLocLight, 1, GL_FALSE, value_ptr(mvp));
+            glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
 
         glfwSwapBuffers(window);
     }
 
     glDeleteVertexArrays(1, &objectVao);
-    //glDeleteVertexArrays(1, &lightVao);
+    glDeleteVertexArrays(1, &lightVao);
     glDeleteBuffers(1, &vbo1);
     glDeleteBuffers(1, &ebo1);
 
