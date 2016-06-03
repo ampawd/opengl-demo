@@ -7,7 +7,7 @@ struct Material {
 };
 
 struct Light {
-    vec3 position;
+    vec3 direction;
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -24,7 +24,7 @@ out vec4 color;
 
 void main() {
     vec3 norm = vNormal;
-    vec3 lightDir = normalize(light.position - vec3(fragPosition.xyz));
+    vec3 lightDir = normalize(-light.direction);
     vec3 viewDir = normalize(cameraPosition - vec3(fragPosition.xyz));
     vec3 reflectDir = reflect(-lightDir, norm);
 

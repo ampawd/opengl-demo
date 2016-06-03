@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/random.hpp>
 #include <SOIL.h>
 
 #include <string>
@@ -160,7 +161,7 @@ int main(int argc, char *argv[])
         w,    0.0f, d,      1.0f, 0.0f, 0.0f,   0.0f, 0.0f,     //  right
         w,    0.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
         w,    h,    0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
-        w,    h,    d,      1.0f, 0.0f, 0.0f,    0.0f, 1.0f,
+        w,    h,    d,      1.0f, 0.0f, 0.0f,   0.0f, 1.0f
     };
 
     GLuint indices[] =
@@ -184,6 +185,7 @@ int main(int argc, char *argv[])
         20, 21, 22,
         22, 23, 20
     };
+
     GLsizei indicesCount = sizeof(indices)/sizeof(GLuint);
 
     shaderManager.use(shaderProgramScene);
@@ -200,7 +202,7 @@ int main(int argc, char *argv[])
     matDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "material.diffuse"),
     matSpecularLoc = glGetUniformLocation(shaderProgramScene, "material.specular"),
     matShineLoc    = glGetUniformLocation(shaderProgramScene, "material.shininess"),
-    lightPositionLoc = glGetUniformLocation(shaderProgramScene, "light.position"),
+    lightDirectionLoc = glGetUniformLocation(shaderProgramScene, "light.direction"),
     lightAmbientLoc  = glGetUniformLocation(shaderProgramScene, "light.ambient"),
     lightDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "light.diffuse"),
     lightSpecularLoc = glGetUniformLocation(shaderProgramScene, "light.specular");
@@ -209,11 +211,12 @@ int main(int argc, char *argv[])
     //glUniform3f(matDiffuseLoc,  0.4f, 0.7f, 0.8f);
     //glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
     glUniform1f(matShineLoc,    32.0f);
-    glUniform3f(lightAmbientLoc,  0.2f, 0.2f, 0.2f);
-    glUniform3f(lightDiffuseLoc,  0.5f, 0.5f, 0.5f);
+    glUniform3f(lightAmbientLoc,  0.1f, 0.1f, 0.1f);
+    glUniform3f(lightDiffuseLoc,  0.6f, 0.6f, 0.6f);
     glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
 
-    glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
+    //glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
+    glUniform3f(lightDirectionLoc,  0.0, 0.0f, -100.0f);
     glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
 
     glGenVertexArrays(1, &objectVao);
@@ -238,18 +241,18 @@ int main(int argc, char *argv[])
     glBindVertexArray(0);   //  unbind
 
 
-    shaderManager.use(shaderProgramLightSource);
-    GLuint positionLocLight = glGetAttribLocation(shaderProgramLightSource, "position"),
-           mvpLocLight = glGetUniformLocation(shaderProgramLightSource, "mvp");
-    //  light source is cube
-    GLuint lightVao;
-    glGenVertexArrays(1, &lightVao);
-    glBindVertexArray(lightVao);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo1);
-        glVertexAttribPointer(positionLocLight, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid*)0);
-        glEnableVertexAttribArray(positionLocLight);
-    glBindVertexArray(0);
+//    shaderManager.use(shaderProgramLightSource);
+//    GLuint positionLocLight = glGetAttribLocation(shaderProgramLightSource, "position"),
+//           mvpLocLight = glGetUniformLocation(shaderProgramLightSource, "mvp");
+//    //  light source is cube
+//    GLuint lightVao;
+//    glGenVertexArrays(1, &lightVao);
+//    glBindVertexArray(lightVao);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
+//        glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+//        glVertexAttribPointer(positionLocLight, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid*)0);
+//        glEnableVertexAttribArray(positionLocLight);
+//    glBindVertexArray(0);
 
 
     //  wooden box texture
@@ -260,38 +263,39 @@ int main(int argc, char *argv[])
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    int brickWidth, brickHeight;
-    unsigned char* brickImage = SOIL_load_image("images/container2.png", &brickWidth, &brickHeight, 0, SOIL_LOAD_RGB);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, brickWidth, brickHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, brickImage);
+    int woodWidth, woodHeight;
+    unsigned char* brickImage = SOIL_load_image("images/container2.png", &woodWidth, &woodHeight, 0, SOIL_LOAD_RGB);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, woodWidth, woodHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, brickImage);
     glGenerateMipmap(GL_TEXTURE_2D);
     SOIL_free_image_data(brickImage);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-
     //  frame texture
-    GLuint woodenBoxTextureFrame;
-    glGenTextures(1, &woodenBoxTextureFrame);
-    glBindTexture(GL_TEXTURE_2D, woodenBoxTextureFrame);
+    GLuint steelFrameTexture;
+    glGenTextures(1, &steelFrameTexture);
+    glBindTexture(GL_TEXTURE_2D, steelFrameTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	    //  Set texture wrapping to GL_REPEAT (usually basic wrapping method)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //  Set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    int faceWidth, faceHeight;
-    unsigned char* faceImage = SOIL_load_image("images/container2_specular.png", &faceWidth, &faceHeight, 0, SOIL_LOAD_RGB);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, faceWidth, faceHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, faceImage);
+    int steelTextureWidth, steelTextureHeight;
+    unsigned char* faceImage = SOIL_load_image("images/container2_specular.png", &steelTextureWidth, &steelTextureHeight, 0, SOIL_LOAD_RGB);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, steelTextureWidth, steelTextureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, faceImage);
     glGenerateMipmap(GL_TEXTURE_2D);
     SOIL_free_image_data(faceImage);
     glBindTexture(GL_TEXTURE_2D, 0);
 
 
     std::vector<glm::vec3> positions;
-    //positions.push_back(glm::vec3(-100.0f, -50.0f, 0.0f));
-    positions.push_back(glm::vec3(-2*w, 0.0f, 0.0f));
+    positions.push_back(glm::vec3(0.0f, -300.0f, 50.0f));
+    positions.push_back(glm::vec3(-3*w, 0.0f, 0.0f));
     positions.push_back(glm::vec3(0.0f, h, -1.5*d));
     positions.push_back(glm::vec3(w, -h, 50.0f));
-    positions.push_back(glm::vec3(-2*w, -2*h, -150.0f));
+    positions.push_back(glm::vec3(-3*w, -3*h, -100.0f));
     positions.push_back(glm::vec3(2*w + 50, 0.0f, 0.0f));
     positions.push_back(glm::vec3(-2*w + 150, -1.5*h, -10.0f));
+    positions.push_back(glm::vec3(2*w + 150, -2.5*h, -10.0f));
+    positions.push_back(glm::vec3(w - 150, -3.5*h, -d*3.0f));
 
     glm::mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate, normalMatrix;
     projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
@@ -315,7 +319,7 @@ int main(int argc, char *argv[])
 
         shaderManager.use(shaderProgramScene);
         glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
-        glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
+        //glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
 
         glBindVertexArray(objectVao);
             glActiveTexture(GL_TEXTURE0);
@@ -323,17 +327,18 @@ int main(int argc, char *argv[])
             glUniform1i(matDiffuseLoc, 0);
 
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, woodenBoxTextureFrame);
+            glBindTexture(GL_TEXTURE_2D, steelFrameTexture);
             glUniform1i(matSpecularLoc, 1);
 
             Tback = glm::translate(glm::mat4(1.0f), glm::vec3(w/2, h/2, d/2));
-            R = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
+            //R = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
             T = glm::translate(glm::mat4(1.0f), -1.0f * glm::vec3(w/2, h/2, d/2));
 
             do_movement(dt);
             pv = projection * view;
             for (size_t i = 0; i < positions.size(); i++)
             {
+                R = glm::rotate(glm::mat4(1.0f), glm::radians(i * 25.0f), glm::vec3(0.1f*i, -1.0f, -0.1f*i) );
                 freeTranslate = glm::translate(glm::mat4(1.0f), positions[i]);
                 model = freeTranslate * Tback * R * T;
                 mvp = pv * model;
@@ -347,21 +352,21 @@ int main(int argc, char *argv[])
         glBindVertexArray(0);
 
 
-        shaderManager.use(shaderProgramLightSource);
-        glBindVertexArray(lightVao);
-            freeTranslate = glm::translate(glm::mat4(1.0f), lightPosition);
-            model = S * freeTranslate;
-            mvp = pv * model;
-            glUniformMatrix4fv(mvpLocLight, 1, GL_FALSE, value_ptr(mvp));
-            glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+//        shaderManager.use(shaderProgramLightSource);
+//        glBindVertexArray(lightVao);
+//            freeTranslate = glm::translate(glm::mat4(1.0f), lightPosition);
+//            model = S * freeTranslate;
+//            mvp = pv * model;
+//            glUniformMatrix4fv(mvpLocLight, 1, GL_FALSE, value_ptr(mvp));
+//            glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+//        glBindVertexArray(0);
 
 
         glfwSwapBuffers(window);
     }
 
     glDeleteVertexArrays(1, &objectVao);
-    glDeleteVertexArrays(1, &lightVao);
+    //glDeleteVertexArrays(1, &lightVao);
     glDeleteBuffers(1, &vbo1);
     glDeleteBuffers(1, &ebo1);
 
