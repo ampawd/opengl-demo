@@ -6,7 +6,7 @@ Camera::Camera(glm::vec3 cameraPosition, glm::vec3 cameraTargetPosition, glm::ve
     fov(45.0f),
     yaw(-90.0f), pitch(0.0f),
     transformMatrix(glm::mat4(1.0f)),
-    movementSpeed(20.0f)
+    movementSpeed(2.0f)
 {
     position = cameraPosition;
     targetPosition = cameraTargetPosition;

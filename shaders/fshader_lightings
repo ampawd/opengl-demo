@@ -20,6 +20,7 @@ struct Light {
 uniform vec3 cameraPosition;
 uniform Material material;
 uniform Light light;
+uniform float lightIntensity;
 
 in vec3 vNormal;
 in vec2 vTexCoord;
@@ -36,10 +37,8 @@ void main() {
     vec3 diffuse  = light.diffuse * max(dot(norm, lightDir), 0.0) * vec3(texture(material.diffuse, vTexCoord));
     vec3 specular = light.specular * pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess) * vec3(texture(material.specular, vTexCoord));
 
-    float d = length(lightDir);
-    float attenuation = 1.0f / (light.constant + light.linear * d + light.quadratic * (d * d));
+    float d = length(light.position - vec3(fragPosition.xyz));
+    float attenuation = lightIntensity / (light.constant + light.linear * d + light.quadratic * (d * d));
 
-
-
-    color = vec4(ambient + diffuse + specular, 1.0f);    //  phong lighting model
+    color = vec4(attenuation * (ambient + diffuse + specular), 1.0f);    //  phong lighting model
 }

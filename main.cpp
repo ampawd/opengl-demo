@@ -23,10 +23,11 @@
 
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
-glm::vec3 cameraPosition(0.0, 0.0, 400.0);
-glm::vec3 lightPosition(100.0, 100.0f, 100.0f);
+glm::vec3 cameraPosition(0.0, 0.0, 10.0);
+glm::vec3 lightPosition(12.0, 0.0f, 0.0f);
+GLfloat lightIntensity = 3.0f;
 
-Camera camera(cameraPosition, glm::vec3(0.0, 0.0, -20.0), glm::vec3(0.0, 1.0, 0.0));
+Camera camera(cameraPosition, glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0));
 
 bool keys[1024];
 void key_callback(GLFWwindow* window, int, int, int, int);
@@ -67,6 +68,30 @@ void do_movement(const GLfloat& dt)
     if (keys[GLFW_KEY_D])  //  right
     {
         camera.handleKeyInput(RIGHT, dt);
+    }
+    if (keys[GLFW_KEY_LEFT]) {
+//        lightIntensity -= 0.1;
+//        if (lightIntensity < 1.0f)
+//        {
+//            lightIntensity = 1.0f;
+//        }
+        lightPosition.x -= 0.1;
+    }
+    if (keys[GLFW_KEY_RIGHT]) {
+//        lightIntensity += 0.1;
+//        if (lightIntensity > 6.0f)
+//        {
+//            lightIntensity = 6.0f;
+//        }
+        lightPosition.x += 0.1;
+    }
+    if (keys[GLFW_KEY_UP])
+    {
+        lightPosition.y += 0.1;
+    }
+    if (keys[GLFW_KEY_DOWN])
+    {
+        lightPosition.y -= 0.1;
     }
 }
 
@@ -127,7 +152,6 @@ int main(int argc, char *argv[])
     shaderProgramScene = shaderManager.buildProgram(vshader, fshader_lightings, gshader);
     shaderProgramLightSource = shaderManager.buildProgram(vshader, fshader_lightsource, gshader);
 
-
     shaderManager.use(shaderProgramScene);
     GLuint objectVao, vbo1, ebo1,
     positionLocScene = glGetAttribLocation(shaderProgramScene, "position"),
@@ -147,23 +171,23 @@ int main(int argc, char *argv[])
     lightPositionLoc = glGetUniformLocation(shaderProgramScene, "light.position"),
     lightAmbientLoc  = glGetUniformLocation(shaderProgramScene, "light.ambient"),
     lightDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "light.diffuse"),
-    lightSpecularLoc = glGetUniformLocation(shaderProgramScene, "light.specular");
+    lightSpecularLoc = glGetUniformLocation(shaderProgramScene, "light.specular"),
+    lightIntensityLoc = glGetUniformLocation(shaderProgramScene, "lightIntensity");
 
-    //glUniform3f(matAmbientLoc,  0.4f, 0.7f, 0.8f);
-    //glUniform3f(matDiffuseLoc,  0.4f, 0.7f, 0.8f);
-    //glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
     glUniform1f(matShineLoc,    32.0f);
-    glUniform3f(lightAmbientLoc,  0.2f, 0.2f, 0.2f);
-    glUniform3f(lightDiffuseLoc,  0.5f, 0.5f, 0.5f);
+    glUniform3f(lightAmbientLoc,  0.5f, 0.5f, 0.5f);
+    glUniform3f(lightDiffuseLoc,  0.9f, 0.9f, 0.9f);
     glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
+    glUniform1f(lightConstantLoc,  1.0);
+    glUniform1f(lightLinearLoc,    0.07);
+    glUniform1f(lightQuadraticLoc, 0.017);
+
     glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
     glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
-    glUniform1f(lightConstantLoc,  1.0);
-    glUniform1f(lightLinearLoc,    0.1);
-    glUniform1f(lightQuadraticLoc, 0.01);
+    glUniform1f(lightIntensityLoc, lightIntensity);
 
     //  set geometries
-    GLfloat w = 100.0f, h = 100.0f, d = 100.0f; //  world space
+    GLfloat w = 1.0f, h = 1.0f, d = 1.0f; //  world space
     GLfloat vertices1[] =
     {
         //  positions       //   normals        //  textures
@@ -289,21 +313,21 @@ int main(int argc, char *argv[])
 
 
     std::vector<glm::vec3> positions;
-    positions.push_back(glm::vec3(0.0f, -300.0f, 50.0f));
-    positions.push_back(glm::vec3(-5*w, 100.0f, 100.0f));
-    positions.push_back(glm::vec3(0.0f, h, -1.5*d));
-    positions.push_back(glm::vec3(w, -h, 50.0f));
-    positions.push_back(glm::vec3(-3*w, -3*h, -100.0f));
-    positions.push_back(glm::vec3(2*w + 50, 0.0f, 0.0f));
-    positions.push_back(glm::vec3(-2*w + 150, -1.5*h, -10.0f));
-    positions.push_back(glm::vec3(2*w + 150, -2.5*h, -10.0f));
-    positions.push_back(glm::vec3(w - 150, -3.5*h, -d*3.0f));
+    positions.push_back(glm::vec3(0.0f, -3.0f, 0.0f));
+    positions.push_back(glm::vec3(-5*w, 0.0f, 0.0f));
+    positions.push_back(glm::vec3(0.0f, h, 0.0f));
+    positions.push_back(glm::vec3(w, -h, 0.0f));
+    positions.push_back(glm::vec3(-5*w, -3*h, 0.0f));
+    positions.push_back(glm::vec3(2*w + 2, 0.0f, 0.0f));
+    positions.push_back(glm::vec3(-7*w + 1, -1.5*h, 0.0f));
+    positions.push_back(glm::vec3(-2*w, -2.5*h, 0.0f));
+    positions.push_back(glm::vec3(w + 1, -4.5*h, 0.0f));
 
     glm::mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate, normalMatrix;
     projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
     S = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
 
-    std::cout << glm::length(lightPosition - positions[1]);
+    //std::cout << glm::length(lightPosition - positions[1]);
 
     //  rendering
     GLfloat currentFrame = 0.0f, lastFrame = 0.0f, dt = 0.0f;
@@ -322,6 +346,7 @@ int main(int argc, char *argv[])
         view = camera.getViewMatrix();
 
         shaderManager.use(shaderProgramScene);
+        glUniform1f(lightIntensityLoc, lightIntensity);
         glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
         glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
 
@@ -335,7 +360,7 @@ int main(int argc, char *argv[])
             glUniform1i(matSpecularLoc, 1);
 
             Tback = glm::translate(glm::mat4(1.0f), glm::vec3(w/2, h/2, d/2));
-            //R = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
+            glm::mat4 R2 = glm::rotate(glm::mat4(1.0f), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f) );
             T = glm::translate(glm::mat4(1.0f), -1.0f * glm::vec3(w/2, h/2, d/2));
 
             do_movement(dt);
@@ -344,7 +369,7 @@ int main(int argc, char *argv[])
             {
                 R = glm::rotate(glm::mat4(1.0f), glm::radians(i * 25.0f), glm::vec3(0.1f*i, -1.0f, -0.1f*i) );
                 freeTranslate = glm::translate(glm::mat4(1.0f), positions[i]);
-                model = freeTranslate * Tback * R * T;
+                model = freeTranslate * Tback * R2 * R * T;
                 mvp = pv * model;
                 normalMatrix = glm::transpose(glm::inverse(model));
                 glUniformMatrix4fv(mvpLocScene, 1, GL_FALSE, glm::value_ptr(mvp));
