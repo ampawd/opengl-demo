@@ -172,7 +172,9 @@ int main(int argc, char *argv[])
     lightAmbientLoc  = glGetUniformLocation(shaderProgramScene, "light.ambient"),
     lightDiffuseLoc  = glGetUniformLocation(shaderProgramScene, "light.diffuse"),
     lightSpecularLoc = glGetUniformLocation(shaderProgramScene, "light.specular"),
-    lightIntensityLoc = glGetUniformLocation(shaderProgramScene, "lightIntensity");
+    lightIntensityLoc = glGetUniformLocation(shaderProgramScene, "lightIntensity"),
+    spotCuttOffLoc = glGetUniformLocation(shaderProgramScene, "light.spotCuttOff"),
+    lightDirectionLoc = glGetUniformLocation(shaderProgramScene, "light.direction");
 
     glUniform1f(matShineLoc,    32.0f);
     glUniform3f(lightAmbientLoc,  0.5f, 0.5f, 0.5f);
@@ -182,7 +184,10 @@ int main(int argc, char *argv[])
     glUniform1f(lightLinearLoc,    0.07);
     glUniform1f(lightQuadraticLoc, 0.017);
 
-    glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
+    glUniform1f(spotCuttOffLoc, glm::cos(glm::radians(12.0f)));
+    glUniform3f(lightDirectionLoc, camera.targetPosition.x, camera.targetPosition.y, camera.targetPosition.z);
+    glUniform3f(lightPositionLoc, camera.position.x, camera.position.y, camera.position.z);
+
     glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
     glUniform1f(lightIntensityLoc, lightIntensity);
 
@@ -311,16 +316,15 @@ int main(int argc, char *argv[])
     SOIL_free_image_data(faceImage);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-
     std::vector<glm::vec3> positions;
     positions.push_back(glm::vec3(0.0f, -3.0f, 0.0f));
     positions.push_back(glm::vec3(-5*w, 0.0f, 0.0f));
     positions.push_back(glm::vec3(0.0f, h, 0.0f));
     positions.push_back(glm::vec3(w, -h, 0.0f));
-    positions.push_back(glm::vec3(-5*w, -3*h, 0.0f));
+    positions.push_back(glm::vec3(-6*w, -3*h, 0.0f));
     positions.push_back(glm::vec3(2*w + 2, 0.0f, 0.0f));
-    positions.push_back(glm::vec3(-7*w + 1, -1.5*h, 0.0f));
-    positions.push_back(glm::vec3(-2*w, -2.5*h, 0.0f));
+    positions.push_back(glm::vec3(-8*w + 1, -1.5*h, 0.0f));
+    positions.push_back(glm::vec3(-4*w, -2.5*h, 0.0f));
     positions.push_back(glm::vec3(w + 1, -4.5*h, 0.0f));
 
     glm::mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate, normalMatrix;
@@ -347,7 +351,8 @@ int main(int argc, char *argv[])
 
         shaderManager.use(shaderProgramScene);
         glUniform1f(lightIntensityLoc, lightIntensity);
-        glUniform3f(lightPositionLoc, lightPosition.x, lightPosition.y, lightPosition.z);
+        glUniform3f(lightPositionLoc, camera.position.x, camera.position.y, camera.position.z);
+        glUniform3f(lightDirectionLoc, camera.targetPosition.x, camera.targetPosition.y, camera.targetPosition.z);
         glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
 
         glBindVertexArray(objectVao);
@@ -369,7 +374,7 @@ int main(int argc, char *argv[])
             {
                 R = glm::rotate(glm::mat4(1.0f), glm::radians(i * 25.0f), glm::vec3(0.1f*i, -1.0f, -0.1f*i) );
                 freeTranslate = glm::translate(glm::mat4(1.0f), positions[i]);
-                model = freeTranslate * Tback * R2 * R * T;
+                model = freeTranslate * Tback * R * T;
                 mvp = pv * model;
                 normalMatrix = glm::transpose(glm::inverse(model));
                 glUniformMatrix4fv(mvpLocScene, 1, GL_FALSE, glm::value_ptr(mvp));
@@ -381,14 +386,14 @@ int main(int argc, char *argv[])
         glBindVertexArray(0);
 
 
-        shaderManager.use(shaderProgramLightSource);
-        glBindVertexArray(lightVao);
-            freeTranslate = glm::translate(glm::mat4(1.0f), lightPosition);
-            model = S * freeTranslate;
-            mvp = pv * model;
-            glUniformMatrix4fv(mvpLocLight, 1, GL_FALSE, value_ptr(mvp));
-            glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+//        shaderManager.use(shaderProgramLightSource);
+//        glBindVertexArray(lightVao);
+//            freeTranslate = glm::translate(glm::mat4(1.0f), lightPosition);
+//            model = S * freeTranslate;
+//            mvp = pv * model;
+//            glUniformMatrix4fv(mvpLocLight, 1, GL_FALSE, value_ptr(mvp));
+//            glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+//        glBindVertexArray(0);
 
 
         glfwSwapBuffers(window);
