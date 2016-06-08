@@ -141,6 +141,7 @@ int main(int argc, char *argv[])
     {
         throw std::runtime_error("glewInit failed");
     }
+
     ShaderManager shaderManager;
     GLuint shaderProgramScene, shaderProgramLightSource;
     Shader vshader(GL_VERTEX_SHADER, "shaders/vshader");
@@ -202,7 +203,6 @@ int main(int argc, char *argv[])
         w,    h,    0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
         w,    h,    d,      1.0f, 0.0f, 0.0f,   0.0f, 1.0f
     };
-
     GLuint indices[] =
     {
          // front
@@ -292,6 +292,8 @@ int main(int argc, char *argv[])
     SOIL_free_image_data(faceImage);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+
+
     std::vector<glm::vec3> positions;
     positions.push_back(glm::vec3(0.0f, -3.0f, 0.0f));
     positions.push_back(glm::vec3(-5*w, 0.0f, 0.0f));
@@ -305,8 +307,6 @@ int main(int argc, char *argv[])
 
     std::vector<glm::vec3> pointLightPositions;
     pointLightPositions.push_back(glm::vec3(12.0, 0.0f, 0.0f));
-    pointLightPositions.push_back(glm::vec3(0.0, 10.0f, 0.0f));
-    pointLightPositions.push_back(glm::vec3(0.0, -10.0f, 0.0f));
 
     glm::mat4 projection, view, model,
             T, Tback, R, S, mvp, pv,
