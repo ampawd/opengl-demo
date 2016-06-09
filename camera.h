@@ -18,7 +18,7 @@ class Camera
     public:
         Camera(glm::vec3 = glm::vec3(0.0, 0.0, 0.0), glm::vec3 = glm::vec3(0.0, 0.0, -20.0), glm::vec3 = glm::vec3(0.0, 1.0, 0.0));
         glm::mat4 getViewMatrix();
-        void handleKeyInput(Directions, const GLfloat&);
+        void handleKeyInput(Directions, const GLdouble&);
         void handleMouseInput(double, double);
         void handleMouseScrollInput(double, double);
         GLfloat getZOOM() const;

@@ -20,23 +20,23 @@ glm::mat4 Camera::getViewMatrix()
     return transformMatrix;
 }
 
-void Camera::handleKeyInput(Directions direction, const GLfloat& dt)
+void Camera::handleKeyInput(Directions direction, const GLdouble& dt)
 {
     if (direction == FORWARD)
     {
-        position += targetPosition * movementSpeed * dt;
+        position += targetPosition * movementSpeed * (GLfloat)dt;
     }
     if (direction == BACKWARD)
     {
-        position -= targetPosition * movementSpeed * dt;
+        position -= targetPosition * movementSpeed * (GLfloat)dt;
     }
     if (direction == LEFT)
     {
-        position -= glm::cross(targetPosition, up) * movementSpeed * dt;
+        position -= glm::cross(targetPosition, up) * movementSpeed * (GLfloat)dt;
     }
     if (direction == RIGHT)
     {
-        position += glm::cross(targetPosition, up) * movementSpeed * dt;
+        position += glm::cross(targetPosition, up) * movementSpeed * (GLfloat)dt;
     }
 }
 

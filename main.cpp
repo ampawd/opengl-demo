@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <GL/glfw3.h>
 
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -17,6 +18,10 @@
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include "shader_manager.h"
 #include "camera.h"
@@ -49,7 +54,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-void do_movement(const GLfloat& dt)
+void do_movement(const GLdouble& dt)
 {
     if (keys[GLFW_KEY_W])  //  forward
     {
@@ -95,8 +100,8 @@ void do_movement(const GLfloat& dt)
 
 void mouse_callback(GLFWwindow* window, double currentMouseX, double currentMouseY)
 {
-    GLfloat dx = currentMouseX - lastMousePos.x;
-    GLfloat dy = lastMousePos.y - currentMouseY;
+    GLdouble dx = currentMouseX - lastMousePos.x;
+    GLdouble dy = lastMousePos.y - currentMouseY;
     lastMousePos.x = currentMouseX;
     lastMousePos.y = currentMouseY;
     camera.handleMouseInput(dx, dy);
@@ -109,6 +114,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char *argv[])
 {
+	foo();
     // initialise GLFW
     if (!glfwInit())
     {
@@ -132,7 +138,7 @@ int main(int argc, char *argv[])
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetWindowPos(window, 10, 50);
 
-    glViewport(0, 0, WINDOW_SIZE.x, WINDOW_SIZE.y);
+    glViewport(0, 0, (GLsizei)WINDOW_SIZE.x, (GLsizei)WINDOW_SIZE.y);
     glEnable(GL_DEPTH_TEST);
 
     //  initialise GLEW
@@ -167,6 +173,9 @@ int main(int argc, char *argv[])
 
     glUniform1f(matShineLoc,    32.0f);
     glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
+
+	
+
 
     //  set geometries
     GLfloat w = 1.0f, h = 1.0f, d = 1.0f; //  world space
@@ -316,7 +325,7 @@ int main(int argc, char *argv[])
     projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
 
     //  rendering
-    GLfloat currentFrame = 0.0f, lastFrame = 0.0f, dt = 0.0f;
+    GLdouble currentFrame = 0.0f, lastFrame = 0.0f, dt = 0.0f;
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!glfwWindowShouldClose(window))
     {
@@ -332,7 +341,7 @@ int main(int argc, char *argv[])
         view = camera.getViewMatrix();
 
         shaderManager.use(shaderProgramScene);
-        for (int i = 0; i < pointLightPositions.size(); i++)
+        for (size_t i = 0; i < pointLightPositions.size(); i++)
         {
 std::string pointLightUniformStr = "pointLights["; pointLightUniformStr += (char)(i + '0'); pointLightUniformStr += "]";
             pointLightUniformStr += ".position";
@@ -371,9 +380,9 @@ std::string pointLightUniformStr = "pointLights["; pointLightUniformStr += (char
             glUniform3f(lightDiffuseLoc,  0.9f, 0.9f, 0.9f);
             glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
 
-            glUniform1f(lightConstantLoc,  1.0);
-            glUniform1f(lightLinearLoc,    0.07);
-            glUniform1f(lightQuadraticLoc, 0.017);
+            glUniform1f(lightConstantLoc,  1.0f);
+            glUniform1f(lightLinearLoc,    0.07f);
+            glUniform1f(lightQuadraticLoc, 0.017f);
             glUniform1f(lightIntensityLoc, 3.0f);
         }
 
@@ -412,7 +421,7 @@ std::string pointLightUniformStr = "pointLights["; pointLightUniformStr += (char
 
         shaderManager.use(shaderProgramLightSource);
         glBindVertexArray(lightVao);
-            for (int i = 0; i < pointLightPositions.size(); i++)
+            for (size_t i = 0; i < pointLightPositions.size(); i++)
             {
                 S = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
                 freeTranslate = glm::translate(glm::mat4(1.0f), pointLightPositions[i]);

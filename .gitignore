@@ -1,12 +1,6 @@
-bin
-doxygen
-obj
-glproj2.cbp
-glproj2.depend
-glproj2.layout
-glproj2.layout.cbTemp
 Debug
-geometries.txt
-glproject2.vcxproj
-glproject2.vcxproj.filters
-glproject2.vcxproj.user
+include
+lib
+glproject-ported.vcxproj
+glproject-ported.vcxproj.filters
+glproject-ported.vcxproj.user
