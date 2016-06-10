@@ -23,16 +23,18 @@ class Camera
         void handleMouseScrollInput(double, double);
         GLfloat getZOOM() const;
         glm::vec3 position;
-        glm::vec3 targetPosition;
+        glm::vec3 front;
+        glm::vec3 up;
+        glm::vec3 right;
 
     private:
-        glm::vec3 up;
         GLfloat mouseSensivity;
         GLfloat fov;
         GLfloat yaw;
         GLfloat pitch;
         GLfloat movementSpeed;
         glm::mat4 transformMatrix;
+		void updateViewSpace();
 
     protected:
 

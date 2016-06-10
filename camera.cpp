@@ -1,22 +1,23 @@
 #include "camera.h"
 
 
-Camera::Camera(glm::vec3 cameraPosition, glm::vec3 cameraTargetPosition, glm::vec3 cameraUp):
+Camera::Camera(glm::vec3 cameraPosition, glm::vec3 cameraFront, glm::vec3 cameraUp):
     mouseSensivity(0.06f),
     fov(45.0f),
     yaw(-90.0f), pitch(0.0f),
     transformMatrix(glm::mat4(1.0f)),
-    movementSpeed(2.0f)
+    movementSpeed(5.0f)
 {
     position = cameraPosition;
-    targetPosition = cameraTargetPosition;
+    front = cameraFront;
     up = cameraUp;
-    transformMatrix = glm::lookAt(position, targetPosition, up);
+    transformMatrix = glm::lookAt(position, front, up);
+	this->updateViewSpace();
 }
 
 glm::mat4 Camera::getViewMatrix()
 {
-    transformMatrix = glm::lookAt(position, position + targetPosition, up);
+    transformMatrix = glm::lookAt(position, position + front, up);
     return transformMatrix;
 }
 
@@ -24,19 +25,19 @@ void Camera::handleKeyInput(Directions direction, const GLdouble& dt)
 {
     if (direction == FORWARD)
     {
-        position += targetPosition * movementSpeed * (GLfloat)dt;
+        position += front * movementSpeed * (GLfloat)dt;
     }
     if (direction == BACKWARD)
     {
-        position -= targetPosition * movementSpeed * (GLfloat)dt;
+        position -= front * movementSpeed * (GLfloat)dt;
     }
     if (direction == LEFT)
     {
-        position -= glm::cross(targetPosition, up) * movementSpeed * (GLfloat)dt;
+        position -= glm::cross(front, up) * movementSpeed * (GLfloat)dt;
     }
     if (direction == RIGHT)
     {
-        position += glm::cross(targetPosition, up) * movementSpeed * (GLfloat)dt;
+        position += glm::cross(front, up) * movementSpeed * (GLfloat)dt;
     }
 }
 
@@ -51,12 +52,8 @@ void Camera::handleMouseInput(double dx, double dy)
     if (pitch < -89.0f)
     {
         pitch = -89.0f;
-    }
-    glm::vec3 target;
-    target.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-    target.y = sin(glm::radians(pitch));
-    target.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-    targetPosition = movementSpeed * glm::normalize(target);
+	}
+	this->updateViewSpace();
 }
 
 void Camera::handleMouseScrollInput(double xoffset, double yoffset)
@@ -78,4 +75,15 @@ void Camera::handleMouseScrollInput(double xoffset, double yoffset)
 GLfloat Camera::getZOOM() const
 {
     return fov;
+}
+
+void Camera::updateViewSpace()
+{
+	glm::vec3 target;
+    target.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    target.y = sin(glm::radians(pitch));
+    target.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+    front = glm::normalize(target);
+	right = glm::normalize(cross(front, up));
+	up = glm::normalize(cross(right, front));
 }

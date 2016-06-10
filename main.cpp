@@ -114,7 +114,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 int main(int argc, char *argv[])
 {
-	foo();
     // initialise GLFW
     if (!glfwInit())
     {
