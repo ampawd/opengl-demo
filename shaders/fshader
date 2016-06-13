@@ -1,11 +1,17 @@
 #version 450 core
 
+struct Material {
+    sampler2D diffuse;
+    sampler2D specular;
+    float shininess;
+};
+
+
 in vec2 vTexCoord;
 out vec4 color;
 
-uniform sampler2D brickTexture;
-uniform sampler2D faceTexture;
+uniform sampler2D diffuseTexture;
 
 void main() {
-	color = mix(texture(brickTexture, vTexCoord), texture(faceTexture, vTexCoord), 0.0);
+	color = texture(diffuseTexture, vTexCoord);
 }

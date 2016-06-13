@@ -19,12 +19,9 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
 #include "shader_manager.h"
 #include "camera.h"
+#include "model.h"
 
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
@@ -173,7 +170,6 @@ int main(int argc, char *argv[])
     glUniform1f(matShineLoc,    32.0f);
     glUniform3f(cameraPositionLocScene, camera.position.x, camera.position.y, camera.position.z);
 
-	
 
 
     //  set geometries

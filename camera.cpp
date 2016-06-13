@@ -39,6 +39,8 @@ void Camera::handleKeyInput(Directions direction, const GLdouble& dt)
     {
         position += glm::cross(front, up) * movementSpeed * (GLfloat)dt;
     }
+
+	position.y = 0;	//	stay on xz plane
 }
 
 void Camera::handleMouseInput(double dx, double dy)
