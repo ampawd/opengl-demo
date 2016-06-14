@@ -1,6 +1,6 @@
 #include "model_mesh.h"
 
-ModelMesh::ModelMesh(std::vector<vertex> _vertices, std::vector<texture> _textures, std::vector<GLuint> _indices) :
+ModelMesh::ModelMesh(std::vector<vertex>& _vertices, std::vector<texture>& _textures, std::vector<GLuint>& _indices) :
 	vertices(_vertices), textures(_textures), indices(_indices)
 {
 	loadMesh();
@@ -8,11 +8,11 @@ ModelMesh::ModelMesh(std::vector<vertex> _vertices, std::vector<texture> _textur
 
 void ModelMesh::loadMesh()
 {
-	loadVertices();
+	loadVertexAttribs();
 	loadTextures();
 }
 
-void ModelMesh::loadVertices()
+void ModelMesh::loadVertexAttribs()
 {
 	glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);

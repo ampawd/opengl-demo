@@ -39,5 +39,5 @@ void Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 std::vector<texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 {
-
+	return std::vector<texture>();
 }

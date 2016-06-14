@@ -1,3 +1,14 @@
+/*
+TODO:
+
+1. Independent window class with UI
+2. Integrate any physics library (bullet) and create some examples
+3. Extend camera functionality (do rotations with quaternions)
+4. ...
+
+*/
+
+
 #define GLEW_STATIC
 #define EXIT_SUCCESS 0
 
