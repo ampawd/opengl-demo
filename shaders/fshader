@@ -6,6 +6,7 @@ struct Material {
     float shininess;
 };
 
+uniform vec3 cameraPostion;
 
 in vec2 vTexCoord;
 out vec4 color;

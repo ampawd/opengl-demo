@@ -1,8 +1,8 @@
 #include "model.h"
 
-Model::Model(std::string& _absPath) : absPath(_absPath)
+Model::Model(const std::string& _absPath) : absPath(_absPath)
 {
-	importModel();
+	import();
 }
 
 void Model::render(GLuint programm)
@@ -13,7 +13,7 @@ void Model::render(GLuint programm)
 	}
 }
 
-void Model::importModel()
+void Model::import()
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(absPath, aiProcess_Triangulate | aiProcess_FlipUVs);
