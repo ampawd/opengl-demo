@@ -7,17 +7,15 @@ class Model
 {
 	public:
 		std::string absPath, directory;
-		Model(std::string&);
+		Model(const std::string&);
 		void render(GLuint);
 	
 	private:
 		std::vector<ModelMesh> modelParts;
-		void importModel();
+		void import();
 		void processNode(aiNode*, const aiScene*);
 		void processMesh(aiMesh*, const aiScene*);
 		std::vector<texture> loadMaterialTextures(aiMaterial*, aiTextureType, std::string); 
 };
-
-
 
 #endif
