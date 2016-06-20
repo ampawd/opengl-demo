@@ -71,7 +71,6 @@ const std::vector<texture>& ModelMesh::getTextures() const
 	return textures;
 };
 	
-
 ModelMesh::~ModelMesh()
 {
 	glDeleteBuffers(1, &vao);
