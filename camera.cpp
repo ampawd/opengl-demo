@@ -6,7 +6,7 @@ Camera::Camera(glm::vec3 cameraPosition, glm::vec3 cameraFront, glm::vec3 camera
     fov(45.0f),
     yaw(-90.0f), pitch(0.0f),
     transformMatrix(glm::mat4(1.0f)),
-    movementSpeed(5.0f)
+    movementSpeed(10.0f)
 {
     position = cameraPosition;
     front = cameraFront;
@@ -40,7 +40,7 @@ void Camera::handleKeyInput(Directions direction, const GLdouble& dt)
         position += glm::cross(front, up) * movementSpeed * (GLfloat)dt;
     }
 
-	position.y = 0;	//	stay on xz plane
+	//position.y = 0;	//	stay on xz plane
 }
 
 void Camera::handleMouseInput(double dx, double dy)

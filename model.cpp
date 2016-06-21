@@ -16,7 +16,7 @@ void Model::render(GLuint programm)
 void Model::import()
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(absPath, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(absPath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
 	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {
         std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << '\n';

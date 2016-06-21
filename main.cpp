@@ -139,8 +139,18 @@ int main(int argc, char *argv[])
     shaderManager.use(shaderProgram);
 
 	Model nanosuit("nanosuit/nanosuit2.obj");
+	
 
-    glm::mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate, normalMatrix;
+    glm::mat4 
+	projection,
+	view,
+	model,
+	T = glm::translate(glm::mat4(1.0), glm::vec3(0.0, -10.0, 0.0)), 
+	Tback = glm::translate(Tback, glm::vec3(0.0, 10.0, 0.0)),
+	R,
+	S,
+	mvp, pv, freeTranslate, normalMatrix;
+
     projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
 	
 	GLuint cameraPositionLoc = glGetUniformLocation(shaderProgram, "cameraPosition"),
@@ -153,6 +163,8 @@ int main(int argc, char *argv[])
 			 lastFrame = 0.0f,
 			 dt = 0.0f;
 
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 	while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -163,19 +175,23 @@ int main(int argc, char *argv[])
         dt = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+		do_movement(dt);
         projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
         view = camera.getViewMatrix();
+
+		pv = projection * view;
+		R = glm::rotate(glm::mat4(1.0), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f));
+		model = R * T;
+		mvp = pv * model;
+		normalMatrix = glm::transpose(glm::inverse(model));
+
         glUniform3f(cameraPositionLoc, camera.position.x, camera.position.y, camera.position.z);
-		
-		//	render model and send trasnform matrices to shader
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+		glUniformMatrix4fv(normalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
-		//glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(view));
-		//glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-		//glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
-
-
-
+		nanosuit.render(shaderProgram);
         glfwSwapBuffers(window);
     }
 
