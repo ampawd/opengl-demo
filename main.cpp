@@ -36,7 +36,7 @@ TODO:
 
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
-glm::vec3 cameraPosition(0.0, 0.0, 10.0);
+glm::vec3 cameraPosition(0.0, 0.0, 25.0);
 
 Camera camera(cameraPosition, glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0));
 
@@ -163,10 +163,9 @@ int main(int argc, char *argv[])
         dt = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        //projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
-        //view = camera.getViewMatrix();
-
-        //glUniform3f(cameraPositionLoc, camera.position.x, camera.position.y, camera.position.z);
+        projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
+        view = camera.getViewMatrix();
+        glUniform3f(cameraPositionLoc, camera.position.x, camera.position.y, camera.position.z);
 		
 		//	render model and send trasnform matrices to shader
 

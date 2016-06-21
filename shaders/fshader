@@ -14,5 +14,6 @@ out vec4 color;
 uniform sampler2D diffuseTexture;
 
 void main() {
-	color = texture(diffuseTexture, vTexCoord);
+	//color = texture(diffuseTexture, vTexCoord);
+	color = vec4(0.9, 0.9, 0.9, 1.0);
 }
