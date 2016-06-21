@@ -4,8 +4,8 @@ TODO:
 
 1. Finish model loading functionality
 2. Independent window class with UI
-3. Integrate any physics library (bullet) and create some examples
-4. Extend camera functionality (rotations with quaternions, camera rotating around specific point ability)
+3. Extend camera functionality (rotations with quaternions, camera rotating around specific point ability) 
+4. Integrate any physics library (bullet) and create some examples
 5. // ...
 
 */
@@ -131,14 +131,14 @@ int main(int argc, char *argv[])
     }
 
     ShaderManager shaderManager;
-    Shader vshader(GL_VERTEX_SHADER, "shaders/vshader");
+    Shader vshader(GL_VERTEX_SHADER,   "shaders/vshader");
     Shader fshader(GL_FRAGMENT_SHADER, "shaders/fshader");
     Shader gshader(GL_GEOMETRY_SHADER, "shaders/gshader");
 
     GLuint shaderProgram = shaderManager.buildProgram(vshader, fshader, gshader);
     shaderManager.use(shaderProgram);
 
-	Model nanosuit("nanosuit/nanosuit.obj");
+	Model nanosuit("nanosuit/nanosuit2.obj");
 
     glm::mat4 projection, view, model, T, Tback, R, S, mvp, pv, freeTranslate, normalMatrix;
     projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
