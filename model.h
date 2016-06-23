@@ -2,6 +2,7 @@
 #define _MODEL_H
 
 #include "model_mesh.h"
+#include <SOIL.h>
 
 class Model 
 {

@@ -34,6 +34,7 @@ TODO:
 #include "camera.h"
 #include "model.h"
 
+
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
 glm::vec3 cameraPosition(0.0, 0.0, 25.0);
@@ -138,14 +139,14 @@ int main(int argc, char *argv[])
     GLuint shaderProgram = shaderManager.buildProgram(vshader, fshader, gshader);
     shaderManager.use(shaderProgram);
 
-	Model nanosuit("nanosuit/nanosuit2.obj");
-	
+	Model handgun("models/Handgun/Handgun_Obj/Handgun_obj.obj");
+	//Model nanosuit("models/nanosuit/nanosuit.obj");
 
     glm::mat4 
 	projection,
 	view,
 	model,
-	T = glm::translate(glm::mat4(1.0), glm::vec3(0.0, -10.0, 0.0)), 
+	T = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0)), 
 	Tback = glm::translate(Tback, glm::vec3(0.0, 10.0, 0.0)),
 	R,
 	S,
@@ -191,7 +192,8 @@ int main(int argc, char *argv[])
 		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 		glUniformMatrix4fv(normalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
-		nanosuit.render(shaderProgram);
+		handgun.render(shaderProgram);
+
         glfwSwapBuffers(window);
     }
 

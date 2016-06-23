@@ -1,20 +1,21 @@
 #version 450 core
 
-/*struct Material {
+/*
+struct Material {
     sampler2D diffuse;
     sampler2D specular;
     float shininess;
 };
 */
 
-//uniform vec3 cameraPostion;
+uniform vec3 cameraPostion;
 
-//in vec2 vTexCoord;
+in vec2 vTexCoord;
 out vec4 color;
 
-//uniform sampler2D diffuseTexture;
+uniform sampler2D diffuseTexture;
 
 void main() {
-	//color = texture(diffuseTexture, vTexCoord);
-	color = vec4(1.0, 1.0, 1.0, 1.0);
+	color = vec4(texture(diffuseTexture, vTexCoord));
+	//color = vec4(1.0, 1.0, 1.0, 1.0);
 }

@@ -24,6 +24,7 @@ struct vertex
 struct texture
 {
 	GLuint ID;
+	std::string type;
 	aiString path;
 };
 
@@ -33,7 +34,6 @@ class ModelMesh
 		GLuint vbo, vao, ebo;
 		void loadMesh();
 		void loadVertexAttribs();
-		void loadTextures();
 		std::vector<vertex>  vertices;
 		std::vector<texture> textures;
 		std::vector<GLuint>  indices;

@@ -10,12 +10,12 @@ uniform mat4 mvp;
 uniform mat4 normalMatrix;
 
 out vec4 fragPosition;
-//out vec2 vTexCoord;
+out vec2 vTexCoord;
 out vec3 vNormal;
 
 void main() {
 	gl_Position = mvp * position;
-	//fragPosition = model * position;
-	//vTexCoord = texCoord;
-	//vNormal = mat3(normalMatrix) * normal;
+	fragPosition = model * position;
+	vTexCoord = texCoord;
+	vNormal = mat3(normalMatrix) * normal;
 }
