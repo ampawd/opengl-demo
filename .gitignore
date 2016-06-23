@@ -4,7 +4,6 @@ lib
 glproject-ported.vcxproj
 glproject-ported.vcxproj.filters
 glproject-ported.vcxproj.user
-nanosuit
 opengl-demo.vcxproj
 opengl-demo.vcxproj.filters
 additional-inc
