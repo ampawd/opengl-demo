@@ -2,7 +2,8 @@
 
 TODO:
 
-1. Finish model loading functionality
+1. Finish model loading functionality	
+   - Optimize getting mesh materials checking current texture with already loaded texture image
 2. Independent window class with UI
 3. Extend camera functionality (rotations with quaternions, camera rotating around specific point ability) 
 4. Integrate any physics library (bullet) and create some examples
@@ -148,8 +149,8 @@ int main(int argc, char *argv[])
 	model,
 	T = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0)), 
 	Tback = glm::translate(Tback, glm::vec3(0.0, 10.0, 0.0)),
-	R,
-	S,
+	R = glm::mat4(1.0),
+	S = glm::mat4(1.0),
 	mvp, pv, freeTranslate, normalMatrix;
 
     projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
@@ -185,7 +186,7 @@ int main(int argc, char *argv[])
 
 		T = glm::translate(glm::mat4(1.0), glm::vec3(10.0, 0, 50.0));
 		R = glm::rotate(glm::mat4(1.0), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f));
-		model = R * T;
+		model = T;
 		mvp = pv * model;
 		normalMatrix = glm::transpose(glm::inverse(model));
         glUniform3f(cameraPositionLoc, camera.position.x, camera.position.y, camera.position.z);
@@ -204,7 +205,6 @@ int main(int argc, char *argv[])
 		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 		glUniformMatrix4fv(normalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 		nanosuit.render(shaderProgram);
-
 
         glfwSwapBuffers(window);
     }
