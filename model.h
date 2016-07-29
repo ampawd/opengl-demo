@@ -17,6 +17,7 @@ class Model
 		void processNode(aiNode*, const aiScene*);
 		void processMesh(aiMesh*, const aiScene*);
 		std::vector<texture> loadMaterialTextures(aiMaterial*, aiTextureType, std::string); 
+		GLint getTextureImageID(const char*, std::string);
 };
 
 #endif

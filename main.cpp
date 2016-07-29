@@ -98,6 +98,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     camera.handleMouseScrollInput(xoffset, yoffset);
 }
 
+
 int main(int argc, char *argv[])
 {
     //	initialise GLFW
@@ -140,7 +141,7 @@ int main(int argc, char *argv[])
     GLuint shaderProgram = shaderManager.buildProgram(vshader, fshader, gshader);
     shaderManager.use(shaderProgram);
 
-	Model handgun("models/Handgun/Handgun_Obj/Handgun_obj.obj");
+	//Model handgun("models/Handgun/Handgun_Obj/Handgun_obj.obj");
 	Model nanosuit("models/nanosuit/nanosuit.obj");
 
     glm::mat4 
@@ -183,20 +184,9 @@ int main(int argc, char *argv[])
 		pv = projection * view;
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		
-
-		T = glm::translate(glm::mat4(1.0), glm::vec3(10.0, 0, 50.0));
-		R = glm::rotate(glm::mat4(1.0), (GLfloat)glfwGetTime(), glm::vec3(0.0f, -1.0f, 0.0f));
-		model = T;
-		mvp = pv * model;
-		normalMatrix = glm::transpose(glm::inverse(model));
-        glUniform3f(cameraPositionLoc, camera.position.x, camera.position.y, camera.position.z);
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));		
-		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-		glUniformMatrix4fv(normalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
-		handgun.render(shaderProgram);
-
-
-		T = glm::translate(glm::mat4(1.0), glm::vec3(-10.0, -10, 0.0));
+		
+		R = glm::rotate(glm::mat4(1.0), (GLfloat)glfwGetTime(), glm::vec3(0.0, 1.0, 0.0));
+		T = glm::translate(glm::mat4(1.0), glm::vec3(0.0, -10, 0.0));
 		model = R * T;
 		mvp = pv * model;
 		normalMatrix = glm::transpose(glm::inverse(model));

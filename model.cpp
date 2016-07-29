@@ -1,7 +1,5 @@
 #include "model.h"
 
-GLint getTextureImageID(const char* path, std::string directory);
-
 Model::Model(const std::string& _absPath) : absPath(_absPath)
 {
 	import();
@@ -103,10 +101,9 @@ std::vector<texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 	return textures;
 }
 
-GLint getTextureImageID(const char* path, std::string directory)
+GLint Model::getTextureImageID(const char* path, std::string directory)
 {
-    std::string filename = std::string(path);
-    filename = directory + '/' + filename;
+	std::string filename = directory + '/' + std::string(path);
     GLuint textureID;
     glGenTextures(1, &textureID);
     int width,height;
