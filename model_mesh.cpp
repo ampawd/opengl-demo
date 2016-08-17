@@ -32,15 +32,30 @@ void ModelMesh::loadVertexAttribs()
 		glVertexAttribPointer(TEXTCOORD_LOC, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (GLvoid*)offsetof(vertex, texCoord));
 		glEnableVertexAttribArray(TEXTCOORD_LOC);
 	glBindVertexArray(0);
-};
+}
 
 void ModelMesh::render(GLuint programm)
 {
+	std::string textureTypeStr, number;
+	int diffTexCount = 0, specTexCount = 0;
 	for (size_t i = 0, texturesSize = textures.size(); i < texturesSize; i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
+		textureTypeStr = textures[i].type;
+
+		if (textureTypeStr == "diffuseTexture") {
+			diffTexCount++;
+			number = std::to_string(diffTexCount);
+		}
+
+		if (textureTypeStr == "specularTexture") {
+			specTexCount++;
+			number = std::to_string(specTexCount);
+		}
+
 		glBindTexture(GL_TEXTURE_2D, textures[i].ID);
-		glUniform1i(glGetUniformLocation(programm, textures[i].type.c_str()), i);
+		glUniform1i(glGetUniformLocation(programm, ("material." + textureTypeStr + number).c_str()), i);
+		glUniform1f(glGetUniformLocation(programm, "material.shininess"), 32.0);
 	}
 	glActiveTexture(GL_TEXTURE0);
 
@@ -63,7 +78,7 @@ const std::vector<vertex>& ModelMesh::getVertices() const
 const std::vector<texture>& ModelMesh::getTextures() const 
 {
 	return textures;
-};
+}
 	
 ModelMesh::~ModelMesh()
 {

@@ -38,7 +38,7 @@ TODO:
 
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
-glm::vec3 cameraPosition(0.0, 0.0, 25.0);
+glm::vec3 cameraPosition(0.0, 0.0, 25.0), lightPosition(0.0, 10.0, 5.0);
 
 Camera camera(cameraPosition, glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0));
 
@@ -157,10 +157,14 @@ int main(int argc, char *argv[])
     projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
 	
 	GLuint cameraPositionLoc = glGetUniformLocation(shaderProgram, "cameraPosition"),
-			modelLoc =		   glGetUniformLocation(shaderProgram, "model"), 	
-			viewLoc =		   glGetUniformLocation(shaderProgram, "view"),
-			mvpLoc =		   glGetUniformLocation(shaderProgram, "mvp"),
-			normalMatrixLoc =  glGetUniformLocation(shaderProgram, "normalMatrix");
+			lightPositonLoc	 = glGetUniformLocation(shaderProgram, "dirLigh1.position"),
+			lightAmbientLoc   = glGetUniformLocation(shaderProgram, "dirLigh1.ambient"),
+			lightDiffuseLoc	 = glGetUniformLocation(shaderProgram, "dirLigh1.diffuse"),
+			lightSpecularLoc  = glGetUniformLocation(shaderProgram, "dirLigh1.specular"),
+			modelLoc		 = glGetUniformLocation(shaderProgram, "model"), 	
+			viewLoc			 = glGetUniformLocation(shaderProgram, "view"),
+			mvpLoc			 = glGetUniformLocation(shaderProgram, "mvp"),
+			normalMatrixLoc  = glGetUniformLocation(shaderProgram, "normalMatrix");
 
     GLdouble currentFrame = 0.0f, 
 			 lastFrame = 0.0f,
@@ -182,20 +186,24 @@ int main(int argc, char *argv[])
         projection = glm::perspective(camera.getZOOM(), WINDOW_SIZE.x/WINDOW_SIZE.y, 0.1f, 10000.0f);
         view = camera.getViewMatrix();
 		pv = projection * view;
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));		
 		
 		R = glm::rotate(glm::mat4(1.0), (GLfloat)glfwGetTime(), glm::vec3(0.0, 1.0, 0.0));
 		T = glm::translate(glm::mat4(1.0), glm::vec3(0.0, -10, 0.0));
 		model = R * T;
 		mvp = pv * model;
 		normalMatrix = glm::transpose(glm::inverse(model));
+
 		glUniform3f(cameraPositionLoc, camera.position.x, camera.position.y, camera.position.z);
+		glUniform3f(lightPositonLoc,  lightPosition.x, lightPosition.y, lightPosition.z);
+		glUniform3f(lightAmbientLoc, 1.0, 1.0, 1.0);
+		glUniform3f(lightDiffuseLoc, 1.0, 1.0, 1.0);
+		glUniform3f(lightSpecularLoc, 1.0, 1.0, 1.0);
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 		glUniformMatrix4fv(normalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+		
 		nanosuit.render(shaderProgram);
-
         glfwSwapBuffers(window);
     }
 
