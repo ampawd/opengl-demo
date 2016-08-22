@@ -12,12 +12,13 @@ class Model
 		void render(GLuint);
 	
 	private:
+		const aiScene* scene;
 		std::vector<ModelMesh> modelParts;
 		void import();
-		void processNode(aiNode*, const aiScene*);
-		void processMesh(aiMesh*, const aiScene*);
+		void processNode(aiNode*);
+		void processMesh(aiMesh*);
 		std::vector<texture> loadMaterialTextures(aiMaterial*, aiTextureType, std::string); 
-		GLint getTextureImageID(const char*, std::string);
+		GLint getTextureImageID(const std::string&);
 };
 
 #endif

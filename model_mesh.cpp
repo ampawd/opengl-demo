@@ -1,7 +1,7 @@
 #include "model_mesh.h"
 
-ModelMesh::ModelMesh(std::vector<vertex> _vertices, std::vector<texture> _textures, std::vector<GLuint> _indices) :
-	vertices(_vertices), textures(_textures), indices(_indices)
+ModelMesh::ModelMesh(std::vector<vertex>& vertices, std::vector<texture>& textures, std::vector<GLuint>& indices) :
+	vertices(vertices), textures(textures), indices(indices)
 {
 	loadMesh();
 }

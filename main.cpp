@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
 			 lastFrame = 0.0f,
 			 dt = 0.0f;
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	while (!glfwWindowShouldClose(window))
     {

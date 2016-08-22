@@ -8,22 +8,12 @@ struct Material {
 	sampler2D diffuseTexure3;
 	sampler2D diffuseTexure4;
 	sampler2D diffuseTexure5;
-	sampler2D diffuseTexure6;
-	sampler2D diffuseTexure7;
-	sampler2D diffuseTexure8;
-	sampler2D diffuseTexure9;
-	sampler2D diffuseTexure10;
 	
 	sampler2D specularTexture1;
     sampler2D specularTexture2;
 	sampler2D specularTexture3;
 	sampler2D specularTexture4;
 	sampler2D specularTexture5;
-	sampler2D specularTexture6;
-	sampler2D specularTexture7;
-	sampler2D specularTexture8;
-	sampler2D specularTexture9;
-	sampler2D specularTexture10;
 	float shininess;
 };
 

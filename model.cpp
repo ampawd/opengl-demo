@@ -16,7 +16,7 @@ void Model::render(GLuint programm)
 void Model::import()
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(absPath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+	scene = importer.ReadFile(absPath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
 	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {
         std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << '\n';
@@ -24,23 +24,23 @@ void Model::import()
     }
 
     directory = absPath.substr(0, absPath.find_last_of('/'));
-    processNode(scene->mRootNode, scene);
+    processNode(scene->mRootNode);
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene)
+void Model::processNode(aiNode* node)
 {
 	for (size_t i = 0; i < node->mNumMeshes; i++)
 	{
-		processMesh(scene->mMeshes[node->mMeshes[i]], scene);
+		processMesh(scene->mMeshes[node->mMeshes[i]]);
 	}
 	
 	for (size_t i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], scene);
+		processNode(node->mChildren[i]);
 	}
 }
 
-void Model::processMesh(aiMesh* mesh, const aiScene* scene)
+void Model::processMesh(aiMesh* mesh)
 {
 	std::vector<vertex> vertices;
 	std::vector<texture> textures;
@@ -63,6 +63,7 @@ void Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		} else {
 			v.texCoord = glm::vec2(0.0f, 0.0f);
 		}
+
 		vertices.push_back(v);
 	}
 
@@ -95,16 +96,16 @@ std::vector<texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 	{
 		aiString str;
 		mat->GetTexture(type, i, &str);
-		texture text;
-		text.ID = getTextureImageID(str.C_Str(), this->directory); 
-		text.type = typeName;
-		text.path = str;
-		textures.push_back(text);
+		texture texture;
+		texture.ID = getTextureImageID(str.C_Str()); 
+		texture.type = typeName;
+		texture.path = str;
+		textures.push_back(texture);
 	}
 	return textures;
 }
 
-GLint Model::getTextureImageID(const char* path, std::string directory)
+GLint Model::getTextureImageID(const std::string& path)
 {
 	std::string filename = directory + '/' + std::string(path);
     GLuint textureID;
