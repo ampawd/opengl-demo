@@ -25,7 +25,7 @@ struct texture
 {
 	GLuint ID;
 	std::string type;
-	aiString path;
+	std::string filename;
 };
 
 class ModelMesh

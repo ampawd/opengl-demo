@@ -89,29 +89,39 @@ void Model::processMesh(aiMesh* mesh)
 	this->modelParts.push_back(m);
 }
 
-std::vector<texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType textureType, const std::string& textureTypeStr)
 {
 	std::vector<texture> textures;
-	for (size_t i = 0; i < mat->GetTextureCount(type); i++)
+	for (size_t i = 0; i < mat->GetTextureCount(textureType); i++)
 	{
-		aiString str;
-		mat->GetTexture(type, i, &str);
-		texture texture;
-		texture.ID = getTextureImageID(str.C_Str()); 
-		texture.type = typeName;
-		texture.path = str;
-		textures.push_back(texture);
+		aiString filename;
+		mat->GetTexture(textureType, i, &filename);
+		const char* filenameStr = filename.C_Str();
+		if (loadedTextures.find(filenameStr) == loadedTextures.end())
+		{
+			texture texture;
+			texture.ID = getTextureImageID(filenameStr);
+			texture.type = textureTypeStr;
+			texture.filename = filenameStr;
+			loadedTextures[filename.C_Str()] = texture;
+			textures.push_back(texture);
+		} 
+		else 
+		{
+			textures.push_back(loadedTextures[filenameStr]);
+		}	
 	}
+
 	return textures;
 }
 
-GLint Model::getTextureImageID(const std::string& path)
+GLint Model::getTextureImageID(const std::string& filename)
 {
-	std::string filename = directory + '/' + std::string(path);
+	std::string path = directory + '/' + filename;
     GLuint textureID;
     glGenTextures(1, &textureID);
     int width,height;
-    unsigned char* image = SOIL_load_image(filename.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
+    unsigned char* image = SOIL_load_image(path.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
     glBindTexture(GL_TEXTURE_2D, textureID);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);	

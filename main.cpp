@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 
 	//Model handgun("models/Handgun/Handgun_Obj/Handgun_obj.obj");
 	Model nanosuit("models/nanosuit/nanosuit.obj");
-
+	
     glm::mat4 
 	projection,
 	view,
@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
 			 lastFrame = 0.0f,
 			 dt = 0.0f;
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	while (!glfwWindowShouldClose(window))
     {
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 		pv = projection * view;
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));		
 		
-		R = glm::rotate(glm::mat4(1.0), (GLfloat)glfwGetTime(), glm::vec3(0.0, 1.0, 0.0));
+		//R = glm::rotate(glm::mat4(1.0), (GLfloat)glfwGetTime(), glm::vec3(0.0, 1.0, 0.0));
 		T = glm::translate(glm::mat4(1.0), glm::vec3(0.0, -10, 0.0));
 		model = R * T;
 		mvp = pv * model;

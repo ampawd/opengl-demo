@@ -55,7 +55,7 @@ void ModelMesh::render(GLuint programm)
 
 		glBindTexture(GL_TEXTURE_2D, textures[i].ID);
 		glUniform1i(glGetUniformLocation(programm, ("material." + textureTypeStr + number).c_str()), i);
-		glUniform1f(glGetUniformLocation(programm, "material.shininess"), 32.0);
+		glUniform1f(glGetUniformLocation(programm, "material.shininess"), 16.0);
 	}
 	glActiveTexture(GL_TEXTURE0);
 
