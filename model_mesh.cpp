@@ -1,7 +1,7 @@
 #include "model_mesh.h"
 
-ModelMesh::ModelMesh(std::vector<vertex> _vertices, std::vector<texture> _textures, std::vector<GLuint> _indices) :
-	vertices(_vertices), textures(_textures), indices(_indices)
+ModelMesh::ModelMesh(std::vector<vertex>& vertices, std::vector<texture>& textures, std::vector<GLuint>& indices) :
+	vertices(vertices), textures(textures), indices(indices)
 {
 	loadMesh();
 }
@@ -55,7 +55,7 @@ void ModelMesh::render(GLuint programm)
 
 		glBindTexture(GL_TEXTURE_2D, textures[i].ID);
 		glUniform1i(glGetUniformLocation(programm, ("material." + textureTypeStr + number).c_str()), i);
-		glUniform1f(glGetUniformLocation(programm, "material.shininess"), 32.0);
+		glUniform1f(glGetUniformLocation(programm, "material.shininess"), 16.0);
 	}
 	glActiveTexture(GL_TEXTURE0);
 

@@ -25,7 +25,7 @@ struct texture
 {
 	GLuint ID;
 	std::string type;
-	aiString path;
+	std::string filename;
 };
 
 class ModelMesh
@@ -39,7 +39,7 @@ class ModelMesh
 		std::vector<GLuint>  indices;
 
 	public:
-		ModelMesh(std::vector<vertex>, std::vector<texture>, std::vector<GLuint>);
+		ModelMesh(std::vector<vertex>&, std::vector<texture>&, std::vector<GLuint>&);
 		const std::vector<vertex>& getVertices() const;
 		const std::vector<texture>& getTextures() const;
 		void render(GLuint);

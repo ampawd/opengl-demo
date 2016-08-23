@@ -16,7 +16,7 @@ void Model::render(GLuint programm)
 void Model::import()
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(absPath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+	scene = importer.ReadFile(absPath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
 	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {
         std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << '\n';
@@ -24,23 +24,23 @@ void Model::import()
     }
 
     directory = absPath.substr(0, absPath.find_last_of('/'));
-    processNode(scene->mRootNode, scene);
+    processNode(scene->mRootNode);
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene)
+void Model::processNode(aiNode* node)
 {
 	for (size_t i = 0; i < node->mNumMeshes; i++)
 	{
-		processMesh(scene->mMeshes[node->mMeshes[i]], scene);
+		processMesh(scene->mMeshes[node->mMeshes[i]]);
 	}
 	
 	for (size_t i = 0; i < node->mNumChildren; i++)
 	{
-		processNode(node->mChildren[i], scene);
+		processNode(node->mChildren[i]);
 	}
 }
 
-void Model::processMesh(aiMesh* mesh, const aiScene* scene)
+void Model::processMesh(aiMesh* mesh)
 {
 	std::vector<vertex> vertices;
 	std::vector<texture> textures;
@@ -63,6 +63,7 @@ void Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		} else {
 			v.texCoord = glm::vec2(0.0f, 0.0f);
 		}
+
 		vertices.push_back(v);
 	}
 
@@ -89,29 +90,39 @@ void Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	this->modelParts.push_back(m);
 }
 
-std::vector<texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType textureType, const std::string& textureTypeStr)
 {
 	std::vector<texture> textures;
-	for (size_t i = 0; i < mat->GetTextureCount(type); i++)
+	for (size_t i = 0; i < mat->GetTextureCount(textureType); i++)
 	{
-		aiString str;
-		mat->GetTexture(type, i, &str);
-		texture text;
-		text.ID = getTextureImageID(str.C_Str(), this->directory); 
-		text.type = typeName;
-		text.path = str;
-		textures.push_back(text);
+		aiString filename;
+		mat->GetTexture(textureType, i, &filename);
+		const char* filenameStr = filename.C_Str();
+		if (loadedTextures.find(filenameStr) == loadedTextures.end())
+		{
+			texture texture;
+			texture.ID = getTextureImageID(filenameStr);
+			texture.type = textureTypeStr;
+			texture.filename = filenameStr;
+			loadedTextures[filename.C_Str()] = texture;
+			textures.push_back(texture);
+		} 
+		else 
+		{
+			textures.push_back(loadedTextures[filenameStr]);
+		}	
 	}
+
 	return textures;
 }
 
-GLint Model::getTextureImageID(const char* path, std::string directory)
+GLint Model::getTextureImageID(const std::string& filename)
 {
-	std::string filename = directory + '/' + std::string(path);
+	std::string path = directory + '/' + filename;
     GLuint textureID;
     glGenTextures(1, &textureID);
     int width,height;
-    unsigned char* image = SOIL_load_image(filename.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
+    unsigned char* image = SOIL_load_image(path.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
     glBindTexture(GL_TEXTURE_2D, textureID);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);	

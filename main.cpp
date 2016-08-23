@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
 
 	//Model handgun("models/Handgun/Handgun_Obj/Handgun_obj.obj");
 	Model nanosuit("models/nanosuit/nanosuit.obj");
-
+	
     glm::mat4 
 	projection,
 	view,
