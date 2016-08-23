@@ -75,6 +75,7 @@ void Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		std::vector<texture> specularMaps = loadMaterialTextures(mat, aiTextureType_SPECULAR, "specularTexture");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
+
 	for (size_t i = 0; i < mesh->mNumFaces; i++)
 	{
 		aiFace face = mesh->mFaces[i];

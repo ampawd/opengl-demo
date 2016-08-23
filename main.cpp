@@ -4,6 +4,7 @@ TODO:
 
 1. Finish model loading functionality	
    - Optimize getting mesh materials checking current texture with already loaded texture image
+   - Optimize some vector operations routines (pass by reference etc)
 2. Independent window class with UI
 3. Extend camera functionality (rotations with quaternions, camera rotating around specific point ability) 
 4. Integrate any physics library (bullet) and create some examples
@@ -38,7 +39,7 @@ TODO:
 
 glm::vec2 WINDOW_SIZE(1200, 800);
 glm::vec2 lastMousePos(WINDOW_SIZE.x/2.0, WINDOW_SIZE.y/2.0);
-glm::vec3 cameraPosition(0.0, 0.0, 25.0), lightPosition(0.0, 10.0, 5.0);
+glm::vec3 cameraPosition(0.0, 0.0, 25.0), lightPosition(-3.0, 15.0, 1.0);
 
 Camera camera(cameraPosition, glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0));
 
@@ -188,7 +189,7 @@ int main(int argc, char *argv[])
 		pv = projection * view;
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));		
 		
-		R = glm::rotate(glm::mat4(1.0), (GLfloat)glfwGetTime(), glm::vec3(0.0, 1.0, 0.0));
+		//R = glm::rotate(glm::mat4(1.0), (GLfloat)glfwGetTime(), glm::vec3(0.0, 1.0, 0.0));
 		T = glm::translate(glm::mat4(1.0), glm::vec3(0.0, -10, 0.0));
 		model = R * T;
 		mvp = pv * model;
