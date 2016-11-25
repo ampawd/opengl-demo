@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+	glfwWindowHint(GLFW_SAMPLES, 16);
     GLFWwindow* window = glfwCreateWindow((int)WINDOW_SIZE.x, (int)WINDOW_SIZE.y, "Opengl demo", nullptr, nullptr);
     if (!window)
     {
@@ -125,6 +126,7 @@ int main(int argc, char *argv[])
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetWindowPos(window, 10, 50);
     glViewport(0, 0, (GLsizei)WINDOW_SIZE.x, (GLsizei)WINDOW_SIZE.y);
+	glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
 
     //	initialise GLEW
@@ -159,9 +161,9 @@ int main(int argc, char *argv[])
 	
 	GLuint cameraPositionLoc = glGetUniformLocation(shaderProgram, "cameraPosition"),
 			lightPositonLoc	 = glGetUniformLocation(shaderProgram, "dirLigh1.position"),
-			lightAmbientLoc   = glGetUniformLocation(shaderProgram, "dirLigh1.ambient"),
+			lightAmbientLoc  = glGetUniformLocation(shaderProgram, "dirLigh1.ambient"),
 			lightDiffuseLoc	 = glGetUniformLocation(shaderProgram, "dirLigh1.diffuse"),
-			lightSpecularLoc  = glGetUniformLocation(shaderProgram, "dirLigh1.specular"),
+			lightSpecularLoc = glGetUniformLocation(shaderProgram, "dirLigh1.specular"),
 			modelLoc		 = glGetUniformLocation(shaderProgram, "model"), 	
 			viewLoc			 = glGetUniformLocation(shaderProgram, "view"),
 			mvpLoc			 = glGetUniformLocation(shaderProgram, "mvp"),
@@ -176,7 +178,7 @@ int main(int argc, char *argv[])
 	while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         currentFrame = glfwGetTime();
