@@ -1,6 +1,6 @@
 # opengl-demo
 
-OpenGL demo application for desktop
+modern OpenGL demo application for desktop
 
 ## Features:
 1.	Model loading with Assimp library
