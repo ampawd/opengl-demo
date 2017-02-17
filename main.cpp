@@ -2,26 +2,23 @@
 
 TODO:
 
-1. Finish model loading functionality	
-   - Optimize getting mesh materials checking current texture with already loaded texture image
-   - Optimize some vector operations routines (pass by reference etc)
-2. Independent window class with UI
-3. Extend camera functionality (rotations with quaternions, camera rotating around specific point ability) 
-4. Integrate any physics library (bullet) and create some examples
-5. // ...
+1. Independent window class with UI
+2. Extend camera functionality (rotations with quaternions, camera rotating around specific point ability) 
+3. Integrate any physics library (bullet) and create some examples
+4. // ...
 
 */
 
 #define GLEW_STATIC
 #define EXIT_SUCCESS 0
 
-#include <gl/glew.h>
-#include <gl/glfw3.h>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
-#include <gl/glm/glm.hpp>
-#include <gl/glm/gtc/matrix_transform.hpp>
-#include <gl/glm/gtc/type_ptr.hpp>
-#include <gl/glm/gtc/random.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/random.hpp>
 #include <SOIL.h>
 
 #include <string>

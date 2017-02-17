@@ -1,11 +1,11 @@
 #ifndef _MODEL_MESH
 #define _MODEL_MESH
 
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <gl/glm/glm.hpp>
+#include <glm/glm.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
