@@ -16,7 +16,7 @@ glm,
 SOIL,
 Assimp 3.1.1
 
-###building on debian based distros (debian, ubuntu, mint)
+### building on debian based distros (debian, ubuntu, mint)
 assuming you have already installed all dependencies mentioned above, also make sure that your OpenGL version is 4.x or best is 4.5
 
 if this is all true, then:
