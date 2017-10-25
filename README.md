@@ -23,7 +23,7 @@ if this is all true, then:
 
 1. clone (or download) the repo
 2. cd into the repo
-3. `mkdir build && cd build`
+3. `mkdir build`
 3. type `make` and executable will reside in a build directory
 4. make sure `models` and `shaders` directories are placed within the same directory with executable (copy and paste them from root project directory other wise it won't run)
 5. enjoy
